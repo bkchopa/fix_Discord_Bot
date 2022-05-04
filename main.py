@@ -173,10 +173,13 @@ async def 대기(ctx, text=None):
 
 @bot.command()
 async def 새치기(ctx, text1, text2):
+    index = int(text1) - 1
+    if index < 0 or index >= len(waitList):
+        await ctx.send('없는 번호')
     if text2 in waitList:
         waitList.remove(text2)
 
-    waitList.insert(int(text1) - 1, text2)
+    waitList.insert(index, text2)
 
 @bot.command(aliases=["팀취"])
 async def 팀취소(ctx, teamNum):
@@ -194,7 +197,7 @@ async def 팀취소(ctx, teamNum):
     elif num == 2:
         ch = bot.get_channel(int(team2))
     elif num == 3:
-        ch = bot.get_channel(int(test))
+        ch = bot.get_channel(int(team3))
 
     for member in ch.members:
         if member.voice.self_mute:
@@ -223,7 +226,10 @@ async def 팀뽑(ctx, teamNum):
     elif num == 2:
         ch = bot.get_channel(int(team2))
     elif num == 3:
-        ch = bot.get_channel(int(test))
+        ch = bot.get_channel(int(team3))
+
+    if len(ch.members) == 0:
+        return
 
     ranNum = random.randrange(0, len(ch.members))
 
@@ -234,6 +240,8 @@ async def 팀뽑(ctx, teamNum):
 @bot.command(aliases=["랜덤뽑기", "사다리"])
 async def 랜뽑(ctx, text):
     arr = text.split(',')
+    if len(arr) == 0:
+        return
     ranNum = random.randrange(0, len(arr))
     await ctx.send('당첨자는~ ' + arr[ranNum] + '!')
 
@@ -250,5 +258,6 @@ async def resetList():
         ch = bot.get_channel(890160605246414848)
         await ch.send("명단  리셋합니다!")
         waitList.clear()
+
         
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
