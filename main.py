@@ -231,7 +231,7 @@ async def 팀뽑(ctx, teamNum):
 
     await ctx.send(str(num) + "팀 팀뽑 할사람 : " + test2.nick)
 
-@bot.command(aliases=["랜덤뽑기"])
+@bot.command(aliases=["랜덤뽑기", "사다리"])
 async def 랜뽑(ctx, text):
     arr = text.split(',')
     ranNum = random.randrange(0, len(arr))
