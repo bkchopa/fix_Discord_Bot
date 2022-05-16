@@ -8,7 +8,7 @@ waitList = list()
 team1 = "890160695499423774"
 team2 = "921703036294926366"
 team3 = "921703123221884969"
-teamlist = ["0", "890160695499423774", "921703036294926366", "921703123221884969"]
+teamlist = [0, 890160695499423774, 921703036294926366, 921703123221884969]
 test = "927502689913430057"
 
 async def printlist(ctx: discord.ext.commands.context.Context):
@@ -191,10 +191,10 @@ async def 팀취소(ctx, teamNum):
         await ctx.send('잘못 된 입력')
         return
 
-    if num >= len(ch.members) or num <= 0:
+    if num >= len(teamlist) or num <= 0:
         return
 
-    ch = bot.get_channel(int(teamlist[num]))
+    ch = bot.get_channel(teamlist[num])
 
     for member in ch.members:
         if member.voice.self_mute:
@@ -215,10 +215,10 @@ async def 팀뽑(ctx, teamNum):
         await ctx.send('잘못 된 입력')
         return
 
-    if num >= len(ch.members) or num <= 0:
+    if num >= len(teamlist) or num <= 0:
         return
 
-    ch = bot.get_channel(int(teamlist[num]))
+    ch = bot.get_channel(teamlist[num])
 
     if len(ch.members) == 0:
         return
@@ -254,7 +254,7 @@ async def resetList():
 @tasks.loop(seconds=10)
 async def autoCancel():
     for i in range(1, len(teamlist)-1):
-        ch = bot.get_channel(int(teamlist[i]))
+        ch = bot.get_channel(teamlist[i])
         if len(ch.members) == 0:
             return
 
