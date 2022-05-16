@@ -31,7 +31,7 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+
     resetList.start()
     autoCancel.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
@@ -245,6 +245,7 @@ async def 리셋(ctx):
 
 @tasks.loop(hours=1)
 async def resetList():
+    print('명단리셋.')
     hour = datetime.datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
@@ -253,7 +254,8 @@ async def resetList():
 
 @tasks.loop(seconds=10)
 async def autoCancel():
-    for i in range(1, len(teamlist)-1):
+    print('자동취소.')
+    for i in range(1, len(teamlist)):
         ch = bot.get_channel(teamlist[i])
         if len(ch.members) == 0:
             return
