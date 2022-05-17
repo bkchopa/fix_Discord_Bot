@@ -5,11 +5,14 @@ import random
 
 bot = commands.Bot(command_prefix='!')
 waitList = list()
+prevlist = list()
 team1 = "890160695499423774"
 team2 = "921703036294926366"
 team3 = "921703123221884969"
+
 teamlist = [0, 890160695499423774, 921703036294926366, 921703123221884969]
 test = "927502689913430057"
+
 
 async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
@@ -31,7 +34,7 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-
+    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
     autoCancel.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
@@ -170,8 +173,8 @@ async def 대기(ctx, text=None):
         await ctx.send('대기말고 체크 해주세요 ^^')
         return
 
-
     await printlist(ctx)
+
 
 @bot.command()
 async def 새치기(ctx, text1, text2):
@@ -182,6 +185,7 @@ async def 새치기(ctx, text1, text2):
         waitList.remove(text2)
 
     waitList.insert(index, text2)
+
 
 @bot.command(aliases=["팀취"])
 async def 팀취소(ctx, teamNum):
@@ -207,6 +211,7 @@ async def 팀취소(ctx, teamNum):
 
     await printlist(ctx)
 
+
 @bot.command()
 async def 팀뽑(ctx, teamNum):
     try:
@@ -228,6 +233,7 @@ async def 팀뽑(ctx, teamNum):
     test2 = ch.members[ranNum]
 
     await ctx.send(str(num) + "팀 팀뽑 할사람 : " + test2.nick)
+
 
 @bot.command(aliases=["랜덤뽑기", "사다리"])
 async def 랜뽑(ctx, text):
@@ -252,13 +258,16 @@ async def resetList():
         await ch.send("명단  리셋합니다!")
         waitList.clear()
 
-@tasks.loop(seconds=10)
+
+@tasks.loop(seconds=60)
 async def autoCancel():
     print('자동취소.')
+    global prevlist
+    templist = list()
     for i in range(1, len(teamlist)):
         ch = bot.get_channel(teamlist[i])
         if len(ch.members) == 0:
-            return
+            continue
 
         for member in ch.members:
             if member.voice.self_mute:
@@ -266,11 +275,15 @@ async def autoCancel():
             nickname = member.nick
             realNick = nickname.split('/')[0]
 
+            if realNick not in prevlist:
+                templist.append(realNick)
+                continue
+
             if realNick in waitList:
                 waitList.remove(realNick)
 
+    prevlist.clear()
+    prevlist = templist.copy()
 
 
-
-        
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
