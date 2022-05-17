@@ -275,8 +275,8 @@ async def autoCancel():
             nickname = member.nick
             realNick = nickname.split('/')[0]
 
+            templist.append(realNick)
             if realNick not in prevlist:
-                templist.append(realNick)
                 continue
 
             if realNick in waitList:
