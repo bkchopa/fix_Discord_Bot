@@ -5,12 +5,9 @@ import random
 
 bot = commands.Bot(command_prefix='!')
 waitList = list()
-prevlist = list()
 team1 = "890160695499423774"
 team2 = "921703036294926366"
 team3 = "921703123221884969"
-
-teamlist = [0, 890160695499423774, 921703036294926366, 921703123221884969]
 test = "927502689913430057"
 
 
@@ -36,7 +33,6 @@ async def on_ready():
     ch = bot.get_channel(890160605246414848)
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
-    autoCancel.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 
@@ -195,10 +191,15 @@ async def 팀취소(ctx, teamNum):
         await ctx.send('잘못 된 입력')
         return
 
-    if num >= len(teamlist) or num <= 0:
+    if num > 3 or num <= 0:
         return
 
-    ch = bot.get_channel(teamlist[num])
+    if num == 1:
+        ch = bot.get_channel(int(team1))
+    elif num == 2:
+        ch = bot.get_channel(int(team2))
+    elif num == 3:
+        ch = bot.get_channel(int(team3))
 
     for member in ch.members:
         if member.voice.self_mute:
@@ -220,10 +221,15 @@ async def 팀뽑(ctx, teamNum):
         await ctx.send('잘못 된 입력')
         return
 
-    if num >= len(teamlist) or num <= 0:
+    if num > 3 or num <= 0:
         return
 
-    ch = bot.get_channel(teamlist[num])
+    if num == 1:
+        ch = bot.get_channel(int(team1))
+    elif num == 2:
+        ch = bot.get_channel(int(team2))
+    elif num == 3:
+        ch = bot.get_channel(int(team3))
 
     if len(ch.members) == 0:
         return
@@ -251,39 +257,11 @@ async def 리셋(ctx):
 
 @tasks.loop(hours=1)
 async def resetList():
-    print('명단리셋.')
     hour = datetime.datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
         await ch.send("명단  리셋합니다!")
         waitList.clear()
-
-
-@tasks.loop(seconds=60)
-async def autoCancel():
-    print('자동취소.')
-    global prevlist
-    templist = list()
-    for i in range(1, len(teamlist)):
-        ch = bot.get_channel(teamlist[i])
-        if len(ch.members) == 0:
-            continue
-
-        for member in ch.members:
-            if member.voice.self_mute:
-                continue
-            nickname = member.nick
-            realNick = nickname.split('/')[0]
-
-            templist.append(realNick)
-            if realNick not in prevlist:
-                continue
-
-            if realNick in waitList:
-                waitList.remove(realNick)
-
-    prevlist.clear()
-    prevlist = templist.copy()
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
