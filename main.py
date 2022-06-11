@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import datetime
 import random
+import asyncio
 
 bot = commands.Bot(command_prefix='!')
 waitList = list()
@@ -26,6 +27,30 @@ async def printlist(ctx: discord.ext.commands.context.Context):
     await ctx.send(ret)
 
 
+async def not_here(ctx: discord.ext.commands.context.Context):
+    await ctx.send("대기순번체크 채널을 이용해주세요! 메세지는 4초 뒤 삭제됩니다")
+    await asyncio.sleep(4)
+    await ctx.channel.purge(limit=2)
+
+
+async def changetitle(ctx: discord.ext.commands.context.Context):
+    return
+    ch2 = bot.get_channel(927502689452040236)
+    title = '대기순번체크 ' + str(len(waitList)) + '명'
+    if len(waitList) == 0:
+        await ctx.send('현재 대기 없음')
+        return
+    ret = ""
+    idx = 1
+    for name in waitList:
+        ret += str(idx)
+        idx += 1
+        ret += '. '
+        ret += name
+        ret += " "
+    await ch2.edit(topic=title)
+
+
 @bot.event
 async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
@@ -36,8 +61,11 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 
-@bot.command(aliases=["check", "췤", "첵", "쳌", "채크"])
+@bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ"])
 async def 체크(ctx, *, text=None):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     print('체크 :')
     if text is None:
         nickname = ctx.message.author.nick
@@ -56,6 +84,8 @@ async def 체크(ctx, *, text=None):
     if text not in waitList:
         print(text)
         waitList.append(text)
+
+    await changetitle(ctx)
 
 
 @bot.command()
@@ -76,6 +106,9 @@ async def 테스트(ctx):
 
 @bot.command()
 async def 양보(ctx, text):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     print('양보 :')
     print(text)
     if text in waitList:
@@ -83,9 +116,14 @@ async def 양보(ctx, text):
 
     waitList.insert(0, text)
 
+    await changetitle(ctx)
 
-@bot.command(aliases=["취"])
+
+@bot.command(aliases=["취", "ㅊㅅ"])
 async def 취소(ctx, text=None):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     if text is None:
         nickname = ctx.message.author.nick
         arr = nickname.split('/')
@@ -113,6 +151,8 @@ async def 취소(ctx, text=None):
         else:
             await ctx.send('없는 닉네임')
 
+    await changetitle(ctx)
+
 
 @bot.command(aliases=["부취"])
 async def 부분취소(ctx, text):
@@ -134,6 +174,7 @@ async def 부분취소(ctx, text):
         except ValueError:
             continue
     await printlist(ctx)
+    await changetitle(ctx)
 
 
 @bot.command(aliases=["범취"])
@@ -159,10 +200,14 @@ async def 범위취소(ctx, text):
         await ctx.send('잘못된 입력')
         return
     await printlist(ctx)
+    await changetitle(ctx)
 
 
-@bot.command()
+@bot.command(aliases=["ㄷㄱ"])
 async def 대기(ctx, text=None):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     print('대기요청')
     ch = bot.get_channel(927502689913430057)
     if text is not None:
@@ -181,9 +226,10 @@ async def 새치기(ctx, text1, text2):
         waitList.remove(text2)
 
     waitList.insert(index, text2)
+    await changetitle(ctx)
 
 
-@bot.command(aliases=["팀취"])
+@bot.command(aliases=["팀취", "ㅌㅊ"])
 async def 팀취소(ctx, teamNum):
     try:
         num = int(teamNum)
@@ -202,8 +248,8 @@ async def 팀취소(ctx, teamNum):
         ch = bot.get_channel(int(team3))
 
     for member in ch.members:
-        if member.voice.self_mute:
-            continue
+        # if member.voice.self_mute:
+        # continue
         nickname = member.nick
         realNick = nickname.split('/')[0]
 
@@ -211,10 +257,14 @@ async def 팀취소(ctx, teamNum):
             waitList.remove(realNick)
 
     await printlist(ctx)
+    await changetitle(ctx)
 
 
-@bot.command()
+@bot.command(aliases=["ㅌㅃ"])
 async def 팀뽑(ctx, teamNum):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     try:
         num = int(teamNum)
     except ValueError:
@@ -250,9 +300,36 @@ async def 랜뽑(ctx, text):
     await ctx.send('당첨자는~ ' + arr[ranNum] + '!')
 
 
-@bot.command()
+@bot.command(aliases=["ㄹㅅ"])
 async def 리셋(ctx):
+    if ctx.channel.id != '890160605246414848':
+        await not_here(ctx)
+        return
     waitList.clear()
+    await changetitle(ctx)
+
+
+@bot.command(aliases=["ㅂㄱ"])
+async def 복구(ctx, *, text=None):
+    if text is None:
+        return
+    waitList.clear()
+    start = int()
+    end = int()
+    i = 1
+    while True:
+        start = text.find(str(i) + '.')
+        end = text.find(str(i + 1) + '.')
+        if start == -1:
+            await changetitle(ctx)
+            return
+
+        if end == -1:
+            end = len(text) + 1
+
+        nickName = text[start + 3:end - 1]
+        waitList.append(nickName)
+        i += 1
 
 
 @tasks.loop(hours=1)
