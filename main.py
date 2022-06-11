@@ -63,7 +63,7 @@ async def on_ready():
 
 @bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ"])
 async def 체크(ctx, *, text=None):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     print('체크 :')
@@ -106,7 +106,7 @@ async def 테스트(ctx):
 
 @bot.command()
 async def 양보(ctx, text):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     print('양보 :')
@@ -121,7 +121,7 @@ async def 양보(ctx, text):
 
 @bot.command(aliases=["취", "ㅊㅅ"])
 async def 취소(ctx, text=None):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     if text is None:
@@ -205,7 +205,7 @@ async def 범위취소(ctx, text):
 
 @bot.command(aliases=["ㄷㄱ"])
 async def 대기(ctx, text=None):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     print('대기요청')
@@ -262,7 +262,7 @@ async def 팀취소(ctx, teamNum):
 
 @bot.command(aliases=["ㅌㅃ"])
 async def 팀뽑(ctx, teamNum):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     try:
@@ -302,7 +302,7 @@ async def 랜뽑(ctx, text):
 
 @bot.command(aliases=["ㄹㅅ"])
 async def 리셋(ctx):
-    if ctx.channel.id != '890160605246414848':
+    if ctx.channel.id != int(890160605246414848):
         await not_here(ctx)
         return
     waitList.clear()
