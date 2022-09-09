@@ -134,6 +134,8 @@ async def 취소(ctx, text=None):
             waitList.remove(arr[0])
             print('취소 :')
             print(arr[0])
+
+        await printlist(ctx)
         return
     try:
         string_int = int(text)
