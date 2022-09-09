@@ -64,7 +64,7 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 
-@bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ"])
+@bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz"])
 async def 체크(ctx, *, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
@@ -76,6 +76,7 @@ async def 체크(ctx, *, text=None):
         if arr[0] not in waitList:
             print(arr[0])
             waitList.append(arr[0])
+        await printlist(ctx)
         return
     if text == '!대기':
         return
@@ -88,7 +89,7 @@ async def 체크(ctx, *, text=None):
         print(text)
         waitList.append(text)
 
-    await changetitle(ctx)
+    await printlist(ctx)
 
 
 @bot.command()
@@ -121,7 +122,7 @@ async def 양보(ctx, text):
 
     await changetitle(ctx)
 
-@bot.command(aliases=["취","ㅊㅅ"])
+@bot.command(aliases=["취","ㅊㅅ","ct"])
 async def 취소(ctx, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
@@ -153,7 +154,7 @@ async def 취소(ctx, text=None):
         else:
             await ctx.send('없는 닉네임')
 
-    await changetitle(ctx)
+    await printlist(ctx)
 
 
 @bot.command(aliases=["부취"])
@@ -205,7 +206,7 @@ async def 범위취소(ctx, text):
     await changetitle(ctx)
 
 
-@bot.command(aliases=["ㄷㄱ"])
+@bot.command(aliases=["ㄷㄱ","er"])
 async def 대기(ctx, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
@@ -262,7 +263,7 @@ async def 팀취소(ctx, teamNum):
     await changetitle(ctx)
 
 
-@bot.command()
+@bot.command(aliases=["ㅌㅃ"])
 async def 팀뽑(ctx, teamNum):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
