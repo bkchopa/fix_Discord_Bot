@@ -156,7 +156,6 @@ async def 취소(ctx, text=None):
         else:
             await ctx.send('없는 닉네임')
 
-    await printlist(ctx)
 
 
 @bot.command(aliases=["부취"])
