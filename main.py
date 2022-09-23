@@ -18,6 +18,8 @@ topprice = 0
 remainMileageDic = dict()
 memberListDic = dict()
 memberList = list()
+missedMemberList = list()
+currentAuctionMember = str()
 
 async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
@@ -363,6 +365,13 @@ async def 경매시작(ctx):
 
 @bot.command()
 async def 입찰(ctx, text):
+    nickname = ctx.message.author.nick
+    arr = nickname.split('/')
+    leader = arr[0]
+    if not leader in memberListDic:
+        await ctx.send("당신은 팀장이 아닌걸요?")
+        return
+
     global currentCount
     global topprice
     global topbidder
@@ -376,6 +385,10 @@ async def 입찰(ctx, text):
         return
 
     if price <= topprice:
+        return
+
+    if remainMileageDic[leader] < price:
+        await ctx.send(leader + "씨 돈이 부족해요")
         return
 
     nickname = ctx.message.author.nick
@@ -395,6 +408,7 @@ async def 입찰(ctx, text):
 @tasks.loop(seconds=1)
 async def counter():
     global currentCount
+    global currentAuctionMember
 
     if currentCount < 0:
         return
@@ -404,14 +418,19 @@ async def counter():
         global topprice
         global topbidder
         if topprice == 0:
+            missedMemberList.append(currentAuctionMember)
             await ch.send("유찰되었습니다 ㅜ")
         else:
-            retStr = "경매종료 낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
+            retStr = "경매종료:" + currentAuctionMember + "낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
             await ch.send(retStr)
 
+        remainMileageDic[topbidder] -= topprice
+        currentAuctionMember = ""
         currentCount -= 1
         topprice = 0
         topbidder = 0
+
+        await 경매현황(ch)
         return
 
     msg = await ch.send(currentCount)
@@ -428,13 +447,24 @@ async def 매물등록(ctx, Participants):
         memberList.append(Participant)
 
 @bot.command()
+async def 매물추가(ctx, Participant):
+    memberList.append(Participant)
+
+@bot.command()
+async def 매물제거(ctx, Participant):
+    memberList.remove(Participant)
+
+@bot.command()
 async def 다음매물(ctx):
     if len(memberList) == 0:
         return
 
     ranNum = random.randrange(0, len(memberList))
-    await ctx.send('다음 매물은 ' + memberList[ranNum] + '!')
-    memberList.remove(memberList[ranNum])
+    targetMember = memberList[ranNum]
+    await ctx.send('다음 매물은 ' + targetMember + '!')
+    global currentAuctionMember
+    currentAuctionMember = targetMember
+    memberList.remove(targetMember)
 
 @bot.command()
 async def 자동배정(ctx, leader, member):
@@ -455,9 +485,31 @@ async def 팀장등록(ctx, leader, mileage):
     memberListDic[leader] = ""
 
 @bot.command()
+async def 팀장제거(ctx, leader, mileage):
+    if not leader in memberListDic:
+        await ctx.send("팀장을 잘못 적으셨어요")
+        return
+    del remainMileageDic[leader]
+    del memberListDic[leader]
+
+@bot.command()
+async def 팀장마일리지추가(ctx, leader, mileage):
+    if not leader in memberListDic:
+        await ctx.send("팀장을 잘못 적으셨어요")
+        return
+    remainMileageDic[leader] += mileage
+
+
+@bot.command()
 async def 경매현황(ctx):
-    retStr = "현재 남은 매물 : "
+    retStr =  "현재 남은 매물 : "
     for member in memberList:
+        retStr += member + " "
+
+    retStr += "\n"
+
+    retStr += "유찰 매물     : "
+    for member in missedMemberList:
         retStr += member + " "
 
     retStr += "\n\n\n\n"
@@ -473,6 +525,44 @@ async def 경매현황(ctx):
 
     await ctx.send(retStr)
 
+
+@bot.command()
+async def 대진표(ctx):
+    teamList = list()
+    for leader in memberListDic:
+        teamList.append(leader)
+
+    if len(teamList) == 0:
+        return
+
+    if len(teamList) % 2 != 0:
+        return
+
+    retStr =""
+    while len(teamList) != 0:
+
+        team1 = teamList(random.randrange(0, len(teamList)))
+        team2 = teamList(random.randrange(0, len(teamList)))
+        if team1 == team2:
+            continue
+
+        retStr = team1 + " 팀 vs" +team2 + " 팀\n"
+        teamList.remove(team1)
+        teamList.remove(team2)
+
+@bot.command()
+async def 경매도움말(ctx):
+    retStr ="명령어 목록"
+    retStr += "매물등록\n"
+    retStr += "매물추가\n"
+    retStr += "매물제거\n"
+    retStr += "다음매물\n"
+    retStr += "자동배정\n"
+    retStr += "팀장등록\n"
+    retStr += "팀장제거\n"
+    retStr += "경매현황\n"
+    retStr += "팀장마일리지추가\n"
+    retStr += "대진표\n"
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
