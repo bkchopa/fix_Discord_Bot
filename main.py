@@ -15,7 +15,9 @@ currentCount = -1
 topbidder = ""
 topprice = 0
 
-
+remainMileageDic = dict()
+memberListDic = dict()
+memberList = list()
 
 async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
@@ -30,6 +32,7 @@ async def printlist(ctx: discord.ext.commands.context.Context):
         ret += name
         ret += " "
     await ctx.send(ret)
+
 
 async def not_here(ctx: discord.ext.commands.context.Context):
     await ctx.send("대기순번체크 채널을 이용해주세요! 메세지는 4초 뒤 삭제됩니다")
@@ -58,9 +61,9 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
-    #counter.start()
+    counter.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 @bot.command()
@@ -413,6 +416,63 @@ async def counter():
 
     msg = await ch.send(currentCount)
     currentCount-=1
+
+
+@bot.command()
+async def 매물등록(ctx, Participants):
+    arr = Participants.split(',')
+    if len(arr) == 0:
+        return
+
+    for Participant in arr:
+        memberList.append(Participant)
+
+@bot.command()
+async def 다음매물(ctx):
+    if len(memberList) == 0:
+        return
+
+    ranNum = random.randrange(0, len(memberList))
+    await ctx.send('다음 매물은 ' + memberList[ranNum] + '!')
+    memberList.remove(memberList[ranNum])
+
+@bot.command()
+async def 자동배정(ctx, leader, member):
+    if not leader in memberListDic:
+        await ctx.send("팀장을 잘못 적으셨어요")
+        return
+
+    if not member in memberList:
+        await ctx.send("팀원을 잘못 적으셨어요")
+        return
+
+    memberListDic[leader] += member + " "
+    memberList.remove(member)
+
+@bot.command()
+async def 팀장등록(ctx, leader, mileage):
+    remainMileageDic[leader] = mileage
+    memberListDic[leader] = ""
+
+@bot.command()
+async def 경매현황(ctx):
+    retStr = "현재 남은 매물 : "
+    for member in memberList:
+        retStr += member + " "
+
+    retStr += "\n\n\n\n"
+
+    for leader in remainMileageDic:
+        tempStr = leader
+        tempStr += "("
+        tempStr += str(remainMileageDic[leader])
+        tempStr += ") :"
+        tempStr += memberListDic[leader]
+        tempStr += "\n"
+        retStr += tempStr
+
+    await ctx.send(currentCount)
+
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
