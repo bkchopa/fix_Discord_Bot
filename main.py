@@ -471,7 +471,7 @@ async def 경매현황(ctx):
         tempStr += "\n"
         retStr += tempStr
 
-    await ctx.send(currentCount)
+    await ctx.send(retStr)
 
 
 
