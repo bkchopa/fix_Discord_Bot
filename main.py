@@ -58,11 +58,14 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
     #counter.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
+@bot.command()
+async def 막판(ctx, *, text=None):
+    await bot.change_presence(activity=discord.Game(text))
 
 @bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz"])
 async def 체크(ctx, *, text=None):
