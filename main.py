@@ -367,7 +367,7 @@ async def 경매시작(ctx):
 async def 입찰(ctx, text):
     nickname = ctx.message.author.nick
     arr = nickname.split('/')
-    leader = arr[0]
+    leader = arr[0].replace(" " , "")
     if not leader in memberListDic:
         await ctx.send("당신은 팀장이 아닌걸요?")
         return
@@ -391,14 +391,12 @@ async def 입찰(ctx, text):
         await ctx.send(leader + "씨 돈이 부족해요")
         return
 
-    nickname = ctx.message.author.nick
-    arr = nickname.split('/')
-    realnick = arr[0]
-    if topbidder == realnick:
+
+    if topbidder == leader:
         return
 
     topprice = price
-    topbidder = realnick
+    topbidder = leader
     retStr = "현재 상위 입찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
     await ctx.send(retStr)
     currentCount = 10
@@ -409,6 +407,9 @@ async def 입찰(ctx, text):
 async def counter():
     global currentCount
     global currentAuctionMember
+
+    if currentAuctionMember == "":
+        return
 
     if currentCount < 0:
         return
@@ -422,15 +423,37 @@ async def counter():
             await ch.send("유찰되었습니다 ㅜ")
         else:
             retStr = "경매종료:" + currentAuctionMember + "낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
+            memberListDic[topbidder] += currentAuctionMember + " "
+            remainMileageDic[topbidder] -= topprice
             await ch.send(retStr)
 
-        remainMileageDic[topbidder] -= topprice
         currentAuctionMember = ""
         currentCount -= 1
         topprice = 0
         topbidder = 0
 
-        await 경매현황(ch)
+        retStr = "현재 남은 매물 : "
+        for member in memberList:
+            retStr += member + " "
+
+        retStr += "\n"
+
+        retStr += "유찰 매물     : "
+        for member in missedMemberList:
+            retStr += member + " "
+
+        retStr += "\n\n\n\n"
+
+        for leader in remainMileageDic:
+            tempStr = leader
+            tempStr += "("
+            tempStr += str(remainMileageDic[leader])
+            tempStr += ") :"
+            tempStr += memberListDic[leader]
+            tempStr += "\n"
+            retStr += tempStr
+
+        await ch.send(retStr)
         return
 
     msg = await ch.send(currentCount)
@@ -452,6 +475,9 @@ async def 매물추가(ctx, Participant):
 
 @bot.command()
 async def 매물제거(ctx, Participant):
+    if Participant not in memberList:
+        return
+
     memberList.remove(Participant)
 
 @bot.command()
@@ -459,8 +485,7 @@ async def 다음매물(ctx):
     if len(memberList) == 0:
         return
 
-    ranNum = random.randrange(0, len(memberList))
-    targetMember = memberList[ranNum]
+    targetMember = random.choice(memberList)
     await ctx.send('다음 매물은 ' + targetMember + '!')
     global currentAuctionMember
     currentAuctionMember = targetMember
@@ -481,7 +506,13 @@ async def 자동배정(ctx, leader, member):
 
 @bot.command()
 async def 팀장등록(ctx, leader, mileage):
-    remainMileageDic[leader] = mileage
+    try:
+        price = int(mileage)
+    except ValueError:
+        await ctx.send('잘못 된 입력')
+        return
+
+    remainMileageDic[leader] = int(mileage)
     memberListDic[leader] = ""
 
 @bot.command()
@@ -541,8 +572,8 @@ async def 대진표(ctx):
     retStr =""
     while len(teamList) != 0:
 
-        team1 = teamList(random.randrange(0, len(teamList)))
-        team2 = teamList(random.randrange(0, len(teamList)))
+        team1 = random.choice(teamList)
+        team2 = random.choice(teamList)
         if team1 == team2:
             continue
 
@@ -550,9 +581,19 @@ async def 대진표(ctx):
         teamList.remove(team1)
         teamList.remove(team2)
 
+        await ctx.send(retStr)
+        retStr =""
+
+@bot.command()
+async def 경매종료(ctx):
+    global currentAuctionMember
+    global currentCount
+    currentAuctionMember = ""
+    currentCount = -1
+
 @bot.command()
 async def 경매도움말(ctx):
-    retStr ="명령어 목록"
+    retStr ="명령어 목록\n"
     retStr += "매물등록\n"
     retStr += "매물추가\n"
     retStr += "매물제거\n"
@@ -563,6 +604,8 @@ async def 경매도움말(ctx):
     retStr += "경매현황\n"
     retStr += "팀장마일리지추가\n"
     retStr += "대진표\n"
+
+    await ctx.send(retStr)
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
