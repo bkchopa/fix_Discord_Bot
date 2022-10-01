@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 import datetime
 import random
 import asyncio
+from collections import defaultdict
 
 bot = commands.Bot(command_prefix='!')
 waitList = list()
@@ -20,7 +21,7 @@ lastPrice = 0
 
 
 remainMileageDic = dict()
-memberListDic = dict(list)
+memberListDic = defaultdict(list)
 memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
@@ -67,7 +68,7 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
     counter.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
@@ -430,8 +431,8 @@ async def counter():
             missedMemberList.append(currentAuctionMember)
             await ch.send("유찰되었습니다 ㅜ")
         else:
-            retStr = "경매종료:" + currentAuctionMember + "낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
-            memberListDic[topbidder] += currentAuctionMember + " "
+            retStr = "경매종료:" + currentAuctionMember + " 낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
+            memberListDic[topbidder].append(currentAuctionMember)
             remainMileageDic[topbidder] -= topprice
             await ch.send(retStr)
 
@@ -506,6 +507,16 @@ async def 다음매물(ctx):
     memberList.remove(targetMember)
 
 @bot.command()
+async def 수동매물등록(ctx, member):
+    if member not in memberList:
+        return
+
+    await ctx.send('다음 매물은 ' + member + '!')
+    global currentAuctionMember
+    currentAuctionMember = member
+    memberList.remove(member)
+
+@bot.command()
 async def 자동배정(ctx, leader, member):
     if not leader in memberListDic:
         await ctx.send("팀장을 잘못 적으셨어요")
@@ -556,13 +567,13 @@ async def 팀장마일리지추가(ctx, leader, mileage):
 async def 경매현황(ctx):
     retStr =  "현재 남은 매물 : "
     for member in memberList:
-        retStr += member + " "
+        retStr += member + ","
 
     retStr += "\n\n"
 
     retStr += "유찰 매물     : "
     for member in missedMemberList:
-        retStr += member + " "
+        retStr += member + ","
 
     retStr += "\n\n\n\n"
 
@@ -607,15 +618,21 @@ async def 팀원추가(ctx, leader, member):
     memberList.remove(member)
 
 @bot.command()
+async def 유찰복구(ctx):
+    global memberList
+    memberList = missedMemberList.copy()
+    missedMemberList.clear()
+
+@bot.command()
 async def 되돌리기(ctx):
     global lastMember
     global lastBidder
     global lastPrice
 
-    if lastMember is "":
+    if lastMember == "":
         return
 
-    if lastBidder is "":
+    if lastBidder == "":
         return
 
 
@@ -673,6 +690,31 @@ async def 경매종료(ctx):
     currentCount = -1
 
 @bot.command()
+async def 경매리셋(ctx):
+    global currentAuctionMember
+    global topbidder
+    global topprice
+    global lastMember
+    global lastBidder
+    global lastPrice
+    global remainMileageDic
+    global memberListDic
+    global memberList
+    global missedMemberList
+
+    topbidder = ""
+    topprice = 0
+    lastMember = ""
+    lastBidder = ""
+    lastPrice = 0
+
+    remainMileageDic.clear()
+    memberListDic.clear()
+    memberList.clear()
+    missedMemberList.clear()
+    currentAuctionMember = ""
+
+@bot.command()
 async def 경매도움말(ctx):
     retStr ="명령어 목록\n"
     retStr += "매물등록\n"
@@ -687,6 +729,5 @@ async def 경매도움말(ctx):
     retStr += "대진표\n"
 
     await ctx.send(retStr)
-
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
