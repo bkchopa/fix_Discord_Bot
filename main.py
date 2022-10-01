@@ -14,9 +14,13 @@ auction = 988117624468680794
 currentCount = -1
 topbidder = ""
 topprice = 0
+lastMember =""
+lastBidder =""
+lastPrice = 0
+
 
 remainMileageDic = dict()
-memberListDic = dict()
+memberListDic = dict(list)
 memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
@@ -63,7 +67,7 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
     counter.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
@@ -395,11 +399,12 @@ async def 입찰(ctx, text):
     if topbidder == leader:
         return
 
+    currentCount = 10
     topprice = price
     topbidder = leader
     retStr = "현재 상위 입찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
     await ctx.send(retStr)
-    currentCount = 10
+
 
 
 
@@ -407,6 +412,9 @@ async def 입찰(ctx, text):
 async def counter():
     global currentCount
     global currentAuctionMember
+    global lastMember
+    global lastBidder
+    global lastPrice
 
     if currentAuctionMember == "":
         return
@@ -427,8 +435,12 @@ async def counter():
             remainMileageDic[topbidder] -= topprice
             await ch.send(retStr)
 
+
+        lastMember = currentAuctionMember
+        lastBidder = topbidder
+        lastPrice = topprice
         currentAuctionMember = ""
-        currentCount -= 1
+        currentCount = -1
         topprice = 0
         topbidder = 0
 
@@ -449,7 +461,9 @@ async def counter():
             tempStr += "("
             tempStr += str(remainMileageDic[leader])
             tempStr += ") :"
-            tempStr += memberListDic[leader]
+            for name in memberListDic[leader]:
+                tempStr += name
+                tempStr += " "
             tempStr += "\n"
             retStr += tempStr
 
@@ -501,7 +515,7 @@ async def 자동배정(ctx, leader, member):
         await ctx.send("팀원을 잘못 적으셨어요")
         return
 
-    memberListDic[leader] += member + " "
+    memberListDic[leader].append(member)
     memberList.remove(member)
 
 @bot.command()
@@ -513,11 +527,11 @@ async def 팀장등록(ctx, leader, mileage):
         return
 
     remainMileageDic[leader] = int(mileage)
-    memberListDic[leader] = ""
+    memberListDic[leader] = list()
 
 @bot.command()
 async def 팀장제거(ctx, leader, mileage):
-    if not leader in memberListDic:
+    if leader not in memberListDic:
         await ctx.send("팀장을 잘못 적으셨어요")
         return
     del remainMileageDic[leader]
@@ -528,7 +542,14 @@ async def 팀장마일리지추가(ctx, leader, mileage):
     if not leader in memberListDic:
         await ctx.send("팀장을 잘못 적으셨어요")
         return
-    remainMileageDic[leader] += mileage
+
+    try:
+        price = int(mileage)
+    except ValueError:
+        await ctx.send('잘못 된 입력')
+        return
+
+    remainMileageDic[leader] += price
 
 
 @bot.command()
@@ -537,7 +558,7 @@ async def 경매현황(ctx):
     for member in memberList:
         retStr += member + " "
 
-    retStr += "\n"
+    retStr += "\n\n"
 
     retStr += "유찰 매물     : "
     for member in missedMemberList:
@@ -550,11 +571,71 @@ async def 경매현황(ctx):
         tempStr += "("
         tempStr += str(remainMileageDic[leader])
         tempStr += ") :"
-        tempStr += memberListDic[leader]
+        for name in memberListDic[leader]:
+            tempStr += name
+            tempStr += " "
         tempStr += "\n"
         retStr += tempStr
 
     await ctx.send(retStr)
+
+
+@bot.command()
+async def 팀원제거(ctx, leader, member):
+    if leader not in memberListDic:
+        await ctx.send("팀장을 잘못 적으셨어요")
+        return
+
+    if member not in memberListDic[leader]:
+        await ctx.send("그런 팀원 없어요")
+        return
+
+    memberListDic[leader].remove(member)
+    memberList.append(member)
+
+@bot.command()
+async def 팀원추가(ctx, leader, member):
+    if leader not in memberListDic:
+        await ctx.send("팀장을 잘못 적으셨어요")
+        return
+
+    if member not in memberList:
+        await ctx.send("그런 매물 없어요")
+        return
+
+    memberListDic[leader].append(member)
+    memberList.remove(member)
+
+@bot.command()
+async def 되돌리기(ctx):
+    global lastMember
+    global lastBidder
+    global lastPrice
+
+    if lastMember is "":
+        return
+
+    if lastBidder is "":
+        return
+
+
+    if lastMember not in memberListDic[lastBidder]:
+        await ctx.send("잘못 된 입력")
+        return
+
+    try:
+        int(lastPrice)
+    except ValueError:
+        await ctx.send('잘못 된 입력')
+        return
+
+
+    memberListDic[lastBidder].remove(lastMember)
+    memberList.append(lastMember)
+    remainMileageDic[lastBidder] += int(lastPrice)
+    lastMember = ""
+    lastBidder = ""
+    lastPrice = 0
 
 
 @bot.command()
