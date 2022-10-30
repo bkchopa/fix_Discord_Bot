@@ -730,4 +730,36 @@ async def 경매도움말(ctx):
 
     await ctx.send(retStr)
 
+@bot.command()
+async def 맨션(ctx, index, text):
+    arr = index.split(',')
+    arr.sort(key=int)
+    retStr = ""
+
+    for num in arr:
+        try:
+            string_int = int(num)
+            string_int -= 1
+            if string_int < 0 or string_int >= len(waitList):
+                await ctx.send('없는 번호')
+                continue
+        except ValueError:
+            continue
+
+        waiting = waitList[string_int]
+
+        for member in ctx.guild.members:
+            if member.nick is None:
+                continue
+
+            nickname = member.nick
+            arr = nickname.split('/')
+            realNick = arr[0]
+            if waiting == realNick:
+                retStr += "<@{}> ".format(member.id)
+
+    retStr += text
+
+    await ctx.send(retStr)
+
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
