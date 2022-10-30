@@ -5,7 +5,14 @@ import random
 import asyncio
 from collections import defaultdict
 
-bot = commands.Bot(command_prefix='!')
+
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+
 waitList = list()
 team1 = "890160695499423774"
 team2 = "921703036294926366"
