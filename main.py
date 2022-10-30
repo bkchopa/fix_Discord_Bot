@@ -731,7 +731,7 @@ async def 경매도움말(ctx):
     await ctx.send(retStr)
 
 @bot.command()
-async def 맨션(ctx, index, text):
+async def 맨션(ctx, index, *, text):
     arr = index.split(',')
     arr.sort(key=int)
     retStr = ""
@@ -741,7 +741,6 @@ async def 맨션(ctx, index, text):
             string_int = int(num)
             string_int -= 1
             if string_int < 0 or string_int >= len(waitList):
-                await ctx.send('없는 번호')
                 continue
         except ValueError:
             continue
