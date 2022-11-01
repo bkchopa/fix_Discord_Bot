@@ -784,39 +784,69 @@ async def 경매도움말(ctx):
 
 @bot.command()
 async def 맨션(ctx, index, *, text):
-    if len(index) == 1:
-        arr = index
+
+    if index[1] == '~':
+        arr = index.split('~')
+        string_int1 = int(arr[0])
+        string_int2 = int(arr[1])
+        string_int1 -= 1
+        string_int2 -= 1
+        if (string_int1 < 0 or string_int1 >= len(waitList)) or (string_int2 < 0 or string_int2 >= len(waitList)):
+            await ctx.send('잘못된 번호')
+            return
+
+        retStr = ""
+        while string_int1 <= string_int2:
+            waiting = waitList[string_int1]
+            for member in ctx.guild.members:
+                if member.nick is None:
+                    continue
+
+                nickname = member.nick
+                arr = nickname.split('/')
+                realNick = arr[0]
+                if waiting == realNick:
+                    retStr += "<@{}> ".format(member.id)
+
+            string_int1 += 1
+
+        retStr += text
+        await ctx.send(retStr)
+        return
     else:
-        arr = index.split(',')
-        arr.sort(key=int)
+        if len(index) == 1:
+            arr = index
+        else:
+            arr = index.split(',')
+            arr.sort(key=int)
 
-    retStr = ""
+        retStr = ""
 
-    for num in arr:
-        try:
-            string_int = int(num)
-            string_int -= 1
-            if string_int < 0 or string_int >= len(waitList):
-                await ctx.send('없는 번호')
-                continue
-        except ValueError:
-            continue
-
-        waiting = waitList[string_int]
-
-        for member in ctx.guild.members:
-            if member.nick is None:
+        for num in arr:
+            try:
+                string_int = int(num)
+                string_int -= 1
+                if string_int < 0 or string_int >= len(waitList):
+                    await ctx.send('없는 번호')
+                    continue
+            except ValueError:
                 continue
 
-            nickname = member.nick
-            arr = nickname.split('/')
-            realNick = arr[0]
-            if waiting == realNick:
-                retStr += "<@{}> ".format(member.id)
+            waiting = waitList[string_int]
 
-    retStr += text
+            for member in ctx.guild.members:
+                if member.nick is None:
+                    continue
 
-    await ctx.send(retStr)
+                nickname = member.nick
+                arr = nickname.split('/')
+                realNick = arr[0]
+                if waiting == realNick:
+                    retStr += "<@{}> ".format(member.id)
+
+        retStr += text
+
+        await ctx.send(retStr)
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
