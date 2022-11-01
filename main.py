@@ -12,6 +12,8 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+macpanList = dict()
+maxTeam = 2
 
 waitList = list()
 team1 = "890160695499423774"
@@ -25,6 +27,8 @@ topprice = 0
 lastMember =""
 lastBidder =""
 lastPrice = 0
+
+
 
 
 remainMileageDic = dict()
@@ -75,14 +79,55 @@ async def on_ready():
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
+    i = 1
+    while i <= maxTeam:
+        macpanList[i] = 0
+        i += 1
+
+    macpanList[1] = 0
+    macpanList[2] = 0
+
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
-    resetList.start()
+    #resetList.start()
     counter.start()
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 @bot.command()
-async def 막판(ctx, *, text=None):
-    await bot.change_presence(activity=discord.Game(text))
+async def 막판(ctx, team, count, *, text):
+    if team[1] != '팀':
+        await ctx.send('잘못된 입력')
+        return
+    if count[1] != '명':
+        await ctx.send('잘못된 입력')
+        return
+
+    team_int = 0
+    count_int = 0
+
+    try:
+        team_int = int(team[0])
+    except ValueError:
+        await ctx.send('잘못된 입력')
+        return
+
+    try:
+        count_int = int(count[0])
+    except ValueError:
+        await ctx.send('잘못된 입력')
+        return
+
+    macpanList[team_int] = count_int
+
+    retStr = "막판  "
+    retStr += "1팀 "
+    retStr += str(macpanList[1]) + "명   "
+    retStr += "2팀 "
+    retStr += str(macpanList[2]) + "명         "
+
+
+    await bot.change_presence(activity=discord.Game(retStr))
+
+
 
 @bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz"])
 async def 체크(ctx, *, text=None):
