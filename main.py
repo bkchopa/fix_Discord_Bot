@@ -93,7 +93,7 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
 @bot.command()
-async def 막판(ctx, team, count, *, text):
+async def 막판(ctx, team, count, *, text=None):
     if team[1] != '팀':
         await ctx.send('잘못된 입력')
         return
