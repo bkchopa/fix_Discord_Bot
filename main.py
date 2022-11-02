@@ -784,8 +784,8 @@ async def 경매도움말(ctx):
 
 @bot.command()
 async def 맨션(ctx, index, *, text):
-
-    if index[1] == '~':
+    
+    if len(index) > 1 and index[1] == '~':
         arr = index.split('~')
         string_int1 = int(arr[0])
         string_int2 = int(arr[1])
