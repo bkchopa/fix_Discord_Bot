@@ -13,7 +13,7 @@ intents.guilds = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 macpanList = dict()
-maxTeam = 2
+maxTeam = 3
 
 waitList = list()
 team1 = "890160695499423774"
@@ -84,8 +84,6 @@ async def on_ready():
         macpanList[i] = 0
         i += 1
 
-    macpanList[1] = 0
-    macpanList[2] = 0
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     #resetList.start()
@@ -122,8 +120,9 @@ async def 막판(ctx, team, count, *, text=None):
     retStr += "1팀 "
     retStr += str(macpanList[1]) + "명   "
     retStr += "2팀 "
-    retStr += str(macpanList[2]) + "명         "
-
+    retStr += str(macpanList[2]) + "명    "
+    retStr += "3팀 "
+    retStr += str(macpanList[3]) + "명    "
 
     await bot.change_presence(activity=discord.Game(retStr))
 
@@ -174,7 +173,7 @@ async def 테스트(ctx):
 
 
 @bot.command()
-async def 양보(ctx, text):
+async def 양보(ctx, * ,text):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
         return
@@ -188,7 +187,7 @@ async def 양보(ctx, text):
     await changetitle(ctx)
 
 @bot.command(aliases=["취","ㅊㅅ","ct"])
-async def 취소(ctx, text=None):
+async def 취소(ctx, *, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
         return
@@ -783,7 +782,7 @@ async def 경매도움말(ctx):
     await ctx.send(retStr)
 
 @bot.command()
-async def 맨션(ctx, index, *, text):
+async def 맨션(ctx, index, *, text=None):
     
     if len(index) > 1 and index[1] == '~':
         arr = index.split('~')
