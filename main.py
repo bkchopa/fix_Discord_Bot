@@ -781,7 +781,7 @@ async def 경매도움말(ctx):
 
     await ctx.send(retStr)
 
-@bot.command()
+@bot.command(aliases=["멘션","ㅁㅅ"])
 async def 맨션(ctx, index, *, text=None):
     
     if len(index) > 1 and index[1] == '~':
