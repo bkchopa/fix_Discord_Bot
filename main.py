@@ -368,6 +368,11 @@ async def 랜뽑(ctx, text):
     await ctx.send('당첨자는~ ' + arr[ranNum] + '!')
 
 
+@bot.command(aliases=["1팀", "2팀", "3팀", "4팀"])
+async def 막판방지(ctx, *, text):
+    await ctx.send('!막판 *팀 *명 입니다 선생님')
+
+
 @bot.command()
 async def 리셋(ctx):
     if ctx.channel.id != 890160605246414848:
