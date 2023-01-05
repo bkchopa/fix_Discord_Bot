@@ -298,7 +298,7 @@ async def 새치기(ctx, text1, text2):
     await changetitle(ctx)
 
 
-@bot.command(aliases=["팀취"])
+@bot.command(aliases=["팀취", "ㅌㅊ"])
 async def 팀취소(ctx, teamNum):
     try:
         num = int(teamNum)
@@ -306,7 +306,7 @@ async def 팀취소(ctx, teamNum):
         await ctx.send('잘못 된 입력')
         return
 
-    if num > 3 or num <= 0:
+    if num > 4 or num <= 0:
         return
 
     if num == 1:
@@ -396,7 +396,6 @@ async def 복구(ctx, *, text=None):
         start = text.find(str(i) + '.')
         end = text.find(str(i+1) + '.')
         if start == -1:
-            await changetitle(ctx)
             return
 
         if end == -1:
