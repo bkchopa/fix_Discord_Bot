@@ -19,6 +19,7 @@ waitList = list()
 team1 = "890160695499423774"
 team2 = "921703036294926366"
 team3 = "921703123221884969"
+team4 ="1040618972497854565"
 test = "927502689913430057"
 auction = 988117624468680794
 currentCount = -1
@@ -314,6 +315,8 @@ async def 팀취소(ctx, teamNum):
         ch = bot.get_channel(int(team2))
     elif num == 3:
         ch = bot.get_channel(int(team3))
+    elif num == 4:
+        ch = bot.get_channel(int(team4))
 
     for member in ch.members:
         #if member.voice.self_mute:
@@ -789,7 +792,7 @@ async def 경매도움말(ctx):
 @bot.command(aliases=["멘션","ㅁㅅ"])
 async def 맨션(ctx, index, *, text=None):
     
-    if len(index) > 1 and index[1] == '~':
+    if len(index) > 1 and (index[1] == '~' or index[2] == '~'):
         arr = index.split('~')
         string_int1 = int(arr[0])
         string_int2 = int(arr[1])
