@@ -554,11 +554,16 @@ async def 매물제거(ctx, Participant):
     memberList.remove(Participant)
 
 @bot.command()
+async def 매물섞기(ctx, Participant):
+    random.shuffle(Participant)
+
+@bot.command()
 async def 다음매물(ctx):
     if len(memberList) == 0:
         return
 
-    targetMember = random.choice(memberList)
+    targetMember = memberList[0]
+    #targetMember = random.choice(memberList)
     await ctx.send('다음 매물은 ' + targetMember + '!')
     global currentAuctionMember
     currentAuctionMember = targetMember
