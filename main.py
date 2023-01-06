@@ -555,7 +555,7 @@ async def 매물제거(ctx, Participant):
 
 @bot.command()
 async def 매물섞기(ctx, Participant):
-    random.shuffle(Participant)
+    random.shuffle(memberList)
 
 @bot.command()
 async def 다음매물(ctx):
