@@ -376,7 +376,7 @@ async def 막판방지(ctx, *, text):
     await ctx.send('!막판 *팀 *명 입니다 선생님')
 
 
-@bot.command()
+@bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
