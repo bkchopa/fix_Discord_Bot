@@ -837,8 +837,8 @@ async def 맨션(ctx, index, *, text=None):
 
             string_int1 += 1
 
-        retStr += "."
-        retStr += text
+        if text is not None:
+            retStr += text
         await ctx.send(retStr)
         return
     else:
@@ -872,8 +872,8 @@ async def 맨션(ctx, index, *, text=None):
                 if waiting == realNick:
                     retStr += "<@{}> ".format(member.id)
 
-        retStr += "."
-        retStr += text
+        if text is not None:
+            retStr += text
 
         await ctx.send(retStr)
 
