@@ -87,8 +87,7 @@ async def on_ready():
 
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
-    #resetList.start()
-
+    resetList.start()
     counter.start()
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
