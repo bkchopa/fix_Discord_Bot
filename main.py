@@ -105,7 +105,7 @@ async def on_ready():
             i = 1
             while True:
                 start = text.find(str(i) + '.')
-                end = text.ind(str(i + 1) + '.')
+                end = text.find(str(i + 1) + '.')
                 if start == -1:
                     return
 
@@ -428,7 +428,7 @@ async def 복구(ctx, *, text=None):
     i = 1
     while True:
         start = text.find(str(i) + '.')
-        end = text.ind(str(i+1) + '.')
+        end = text.find(str(i+1) + '.')
         if start == -1:
             return
 
