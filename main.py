@@ -96,7 +96,7 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     for bot_msg in bot_messages:
-        if bot_msg.content[:5] == "현재인원":
+        if bot_msg.content[:5] == "현재인원:":
             message_content = bot_msg.content
             text = message_content.replace("현재인원:", "").strip()
             start = int()
