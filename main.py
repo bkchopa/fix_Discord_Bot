@@ -42,7 +42,7 @@ async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
         await ctx.send('현재 대기 없음')
         return
-    ret = ""
+    ret = "대기인원: "
     idx = 1
     for name in waitList:
         ret += str(idx)
@@ -88,8 +88,40 @@ async def on_ready():
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     #resetList.start()
+
     counter.start()
+
+    bot_messages = await ch.history(limit=100).flatten()
+    bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
+
+    for bot_msg in bot_messages:
+        if bot_msg.content[:5] == "현재인원":
+            message_content = bot_msg.content
+            text = message_content.replace("현재인원:", "").strip()
+            start = int()
+            end = int()
+            i = 1
+            while True:
+                start = text.find(str(i) + '.')
+                end = text.ind(str(i + 1) + '.')
+                if start == -1:
+                    return
+
+                if end == -1:
+                    end = len(text) + 1
+
+                nickName = text[start + 3:end - 1]
+                waitList.append(nickName)
+                i += 1
+
+            await printlist(ctx)
+            return
+
+
+
+
+
 
 @bot.command()
 async def 막판(ctx, team, count, *, text=None):
@@ -129,7 +161,7 @@ async def 막판(ctx, team, count, *, text=None):
 
 
 
-@bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz","CZ"])
+@bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz","CZ","Cz","cZ"])
 async def 체크(ctx, *, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
@@ -382,6 +414,7 @@ async def 리셋(ctx):
         await not_here(ctx)
         return
     waitList.clear()
+    ctx.send('리셋됨')
     await changetitle(ctx)
 
 @bot.command()
@@ -394,7 +427,7 @@ async def 복구(ctx, *, text=None):
     i = 1
     while True:
         start = text.find(str(i) + '.')
-        end = text.find(str(i+1) + '.')
+        end = text.ind(str(i+1) + '.')
         if start == -1:
             return
 
