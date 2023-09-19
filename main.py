@@ -95,7 +95,7 @@ async def on_ready():
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-
+    await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content[:5] == "대기인원:":
             message_content = bot_msg.content
@@ -107,6 +107,7 @@ async def on_ready():
                 start = text.find(str(i) + '.')
                 end = text.find(str(i + 1) + '.')
                 if start == -1:
+                    await printlist(ch)
                     return
 
                 if end == -1:
@@ -115,8 +116,6 @@ async def on_ready():
                 nickName = text[start + 3:end - 1]
                 waitList.append(nickName)
                 i += 1
-
-            await printlist(ctx)
             return
 
 
