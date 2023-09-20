@@ -449,6 +449,7 @@ async def resetList():
         ch = bot.get_channel(890160605246414848)
         await ch.send("명단  리셋합니다!")
         waitList.clear()
+        await printlist(ch)
 
 
 @bot.command()
