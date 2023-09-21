@@ -1,9 +1,12 @@
 import discord
+import os
+import json
 from discord.ext import commands, tasks
 import datetime
 import random
 import asyncio
 from collections import defaultdict
+from spreadSheet import player_info
 
 
 intents = discord.Intents.default()
@@ -28,7 +31,6 @@ topprice = 0
 lastMember =""
 lastBidder =""
 lastPrice = 0
-
 
 
 
@@ -85,6 +87,7 @@ async def on_ready():
         macpanList[i] = 0
         i += 1
 
+    return
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
@@ -909,6 +912,21 @@ async def 맨션(ctx, index, *, text=None):
             retStr += text
 
         await ctx.send(retStr)
+
+@bot.command()
+async def 전적(ctx, name):
+    if name in player_info:
+        embed = discord.Embed(title=name, color=discord.Color.blue())
+
+        for game in player_info[name]:
+            champion = game['champion']
+            result = game['result']
+            kda = f"{game['kill']}/{game['death']}/{game['assist']}"
+            embed.add_field(name=champion, value=f"{result} {kda}", inline=False)
+
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("해당 이름의 데이터를 찾을 수 없습니다.")
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
