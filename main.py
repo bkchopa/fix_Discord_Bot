@@ -956,8 +956,14 @@ async def 전적(ctx, *, text):
     except ValueError:
         arr = text.split(',')
 
+    if len(arr) == 0:
+        return
+
     embed = discord.Embed(title="전적", color=discord.Color.blue())
     for name in arr:
+        if name == "트롤트롤":
+            name = "포롤포롤"
+
         if name in player_info:
             recent_games = player_info[name][:10]
             recent_games = recent_games[::-1]
