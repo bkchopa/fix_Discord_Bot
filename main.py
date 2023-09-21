@@ -913,32 +913,74 @@ async def 맨션(ctx, index, *, text=None):
 
         await ctx.send(retStr)
 
+
+
 @bot.command()
 async def 전적(ctx, *, text):
-    arr = text.split(',')
+    if isinstance(text, (int, float)):
+        num = int(text)
+        arr = {}
+        if num == 1:
+            ch1 = bot.get_channel(944246730722013194)
+            ch2 = bot.get_channel(1133763001766391808)
+            ch3 = bot.get_channel(890160695499423774)
+        elif num == 2:
+            ch1 = bot.get_channel(890161063130177536)
+            ch2 = bot.get_channel(921018416473718834)
+            ch3 = bot.get_channel(921703036294926366)
+        elif num == 3:
+            ch1 = bot.get_channel(920998312998502451)
+            ch2 = bot.get_channel(921018416473718834)
+            ch3 = bot.get_channel(921703123221884969)
+
+        for member in ch1.members:
+            # if member.voice.self_mute:
+            # continue
+            nickname = member.nick
+            realNick = nickname.split('/')[0]
+            arr.append(realNick)
+
+        for member in ch2.members:
+            # if member.voice.self_mute:
+            # continue
+            nickname = member.nick
+            realNick = nickname.split('/')[0]
+            arr.append(realNick)
+
+        for member in ch3.members:
+            # if member.voice.self_mute:
+            # continue
+            nickname = member.nick
+            realNick = nickname.split('/')[0]
+            arr.append(realNick)
+
+    else:
+        arr = text.split(',')
+
     embed = discord.Embed(title="전적", color=discord.Color.blue())
     for name in arr:
         if name in player_info:
-            recent_games = player_info[name][-10:]
+            recent_games = player_info[name][10:]
             recent_games = recent_games[::-1]
-            returnTXT=""
-            max_champion_len = max([len(game['champion']) for game in recent_games])
-            max_result_len = max([len(game['result']) for game in recent_games])
-            max_kda_len = max([len(f"{game['kill']}/{game['death']}/{game['assist']}") for game in recent_games])
-
+            returnTXT = ""
+            winCnt = 0
+            lossCnt = 0
             for game in recent_games:
-                champion = game['champion'].ljust(max_champion_len)
-                result = game['result'].center(max_result_len)
-                kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(max_kda_len)
+                champion = game['champion'].ljust(10)
+                result = game['result'].center(2)
+                if result == "승":
+                    winCnt += 1
+                else:
+                    lossCnt += 1
+
+                kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
                 returnTXT += f"{champion} {result} {kda} \n"
 
-            embed.add_field(name=name, value=returnTXT, inline=True)
-
-        else:
-            await ctx.send("해당 이름의 데이터를 찾을 수 없습니다.")
-            return
+            embed.add_field(name=name + f"최근 {recent_games.count()}전" + winCnt + "승" + lossCnt + "패", value=returnTXT,
+                            inline=True)
 
     await ctx.send(embed=embed)
+
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
