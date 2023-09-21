@@ -918,7 +918,7 @@ async def 맨션(ctx, index, *, text=None):
 @bot.command()
 async def 전적(ctx, *, text):
     arr = list()
-    if isinstance(text, (int, float)):
+    try:
         num = int(text)
         if num == 1:
             ch1 = bot.get_channel(944246730722013194)
@@ -954,7 +954,7 @@ async def 전적(ctx, *, text):
             realNick = nickname.split('/')[0]
             arr.append(realNick)
 
-    else:
+    except ValueError:
         arr = text.split(',')
 
     embed = discord.Embed(title="전적", color=discord.Color.blue())
