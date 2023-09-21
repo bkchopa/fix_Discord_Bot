@@ -960,23 +960,22 @@ async def 전적(ctx, *, text):
     embed = discord.Embed(title="전적", color=discord.Color.blue())
     for name in arr:
         if name in player_info:
-            recent_games = player_info[name][10:]
+            recent_games = player_info[name][:10]
             recent_games = recent_games[::-1]
             returnTXT = ""
             winCnt = 0
             lossCnt = 0
             for game in recent_games:
-                champion = game['champion'].ljust(10)
+                champion = game['champion'].ljust(8)
                 result = game['result'].center(2)
                 if result == "승":
                     winCnt += 1
                 else:
                     lossCnt += 1
-
                 kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
                 returnTXT += f"{champion} {result} {kda} \n"
 
-            embed.add_field(name=name + f"최근 {len(recent_games)}전" + str(winCnt) + "승" + str(lossCnt) + "패", value=returnTXT,inline=True)
+            embed.add_field(name=name + f" 최근 {len(recent_games)}전 " + str(winCnt) + "승 " + str(lossCnt) + "패", value=returnTXT ,inline=True)
 
     await ctx.send(embed=embed)
 
