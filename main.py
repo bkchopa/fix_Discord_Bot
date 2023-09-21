@@ -914,7 +914,7 @@ async def 맨션(ctx, index, *, text=None):
         await ctx.send(retStr)
 
 @bot.command()
-async def 전적(ctx, text):
+async def 전적(ctx, *, text):
     arr = text.split(',')
 
     for name in arr:
@@ -922,11 +922,15 @@ async def 전적(ctx, text):
             embed = discord.Embed(title="전적", color=discord.Color.blue())
 
             recent_games = player_info[name][-10:]
+            returnTXT=""
             for game in recent_games:
                 champion = game['champion']
                 result = game['result']
                 kda = f"{game['kill']}/{game['death']}/{game['assist']}"
-                embed.add_field(name=name, value=f"{champion} {result} {kda}", inline=True)
+                returnTXT += f"{champion} {result} {kda} \n"
+
+            embed.add_field(name=name, value=f"{champion} {result} {kda}", inline=True)
+
         else:
             await ctx.send("해당 이름의 데이터를 찾을 수 없습니다.")
             return
