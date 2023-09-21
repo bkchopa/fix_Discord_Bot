@@ -929,7 +929,7 @@ async def 전적(ctx, *, text):
                 kda = f"{game['kill']}/{game['death']}/{game['assist']}"
                 returnTXT += f"{champion} {result} {kda} \n"
 
-            embed.add_field(name=name, value=f"{champion} {result} {kda}", inline=True)
+            embed.add_field(name=name, value= returnTXT, inline=True)
 
         else:
             await ctx.send("해당 이름의 데이터를 찾을 수 없습니다.")
