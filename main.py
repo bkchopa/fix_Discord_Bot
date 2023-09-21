@@ -968,7 +968,7 @@ async def 전적(ctx, *, text):
             for game in recent_games:
                 champion = game['champion'].ljust(8)
                 result = game['result'].center(2)
-                if result == "승":
+                if game['result'] == "승":
                     winCnt += 1
                 else:
                     lossCnt += 1
