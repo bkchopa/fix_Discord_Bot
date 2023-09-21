@@ -917,9 +917,9 @@ async def 맨션(ctx, index, *, text=None):
 
 @bot.command()
 async def 전적(ctx, *, text):
+    arr = list()
     if isinstance(text, (int, float)):
         num = int(text)
-        arr = {}
         if num == 1:
             ch1 = bot.get_channel(944246730722013194)
             ch2 = bot.get_channel(1133763001766391808)
