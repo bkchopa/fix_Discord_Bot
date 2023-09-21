@@ -87,7 +87,6 @@ async def on_ready():
         macpanList[i] = 0
         i += 1
 
-    return
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
@@ -965,17 +964,27 @@ async def 전적(ctx, *, text):
             returnTXT = ""
             winCnt = 0
             lossCnt = 0
+            winStreak = 0
+            lossStreak = 0
             for game in recent_games:
                 champion = game['champion'].ljust(8)
                 result = game['result'].center(2)
                 if game['result'] == "승":
                     winCnt += 1
+                    winStreak=+1
+                    lossStreak=0
                 else:
                     lossCnt += 1
+                    lossStreak += 1
+                    winStreak = 0
                 kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
                 returnTXT += f"{champion} {result} {kda} \n"
-
-            embed.add_field(name=name + f" 최근 {len(recent_games)}전 " + str(winCnt) + "승 " + str(lossCnt) + "패", value=returnTXT ,inline=True)
+            streak =""
+            if winStreak > lossStreak :
+                streak = "("+str(winStreak)+"연승중!)"
+            else:
+                streak = "("+str(lossStreak) + "연패중 ㅜ)"
+            embed.add_field(name=name + f" 최근 {len(recent_games)}전 " + str(winCnt) + "승 " + str(lossCnt) + "패 " + streak, value=returnTXT ,inline=True)
 
     await ctx.send(embed=embed)
 
