@@ -17,7 +17,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, sco
 client = gspread.authorize(creds)
 
 
-SPREADSHEET_ID = json.loads(os.environ['SPREADSHEET_ID'])
+SPREADSHEET_ID = os.environ['SPREADSHEET_ID']
 spreadsheet = client.open_by_key(SPREADSHEET_ID)
 # 워크시트 선택
 worksheet = spreadsheet.worksheet("기입")
