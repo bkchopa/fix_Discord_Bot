@@ -971,8 +971,8 @@ async def 전적(ctx, *, text):
                 result = game['result'].center(2)
                 if game['result'] == "승":
                     winCnt += 1
-                    winStreak=+1
-                    lossStreak=0
+                    winStreak+=1
+                    lossStreak = 0
                 else:
                     lossCnt += 1
                     lossStreak += 1
