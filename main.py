@@ -922,13 +922,17 @@ async def 전적(ctx, *, text):
             recent_games = player_info[name][-10:]
             recent_games = recent_games[::-1]
             returnTXT=""
+            max_champion_len = max([len(game['champion']) for game in recent_games])
+            max_result_len = max([len(game['result']) for game in recent_games])
+            max_kda_len = max([len(f"{game['kill']}/{game['death']}/{game['assist']}") for game in recent_games])
+
             for game in recent_games:
-                champion = game['champion'].ljust(10)
-                result = game['result'].center(2)
-                kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
+                champion = game['champion'].ljust(max_champion_len)
+                result = game['result'].center(max_result_len)
+                kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(max_kda_len)
                 returnTXT += f"{champion} {result} {kda} \n"
 
-            embed.add_field(name=name, value= returnTXT, inline=True)
+            embed.add_field(name=name, value=returnTXT, inline=True)
 
         else:
             await ctx.send("해당 이름의 데이터를 찾을 수 없습니다.")
