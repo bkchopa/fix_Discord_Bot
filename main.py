@@ -916,17 +916,16 @@ async def 맨션(ctx, index, *, text=None):
 @bot.command()
 async def 전적(ctx, *, text):
     arr = text.split(',')
-
+    embed = discord.Embed(title="전적", color=discord.Color.blue())
     for name in arr:
         if name in player_info:
-            embed = discord.Embed(title="전적", color=discord.Color.blue())
-
             recent_games = player_info[name][-10:]
+            recent_games = recent_games[::-1]
             returnTXT=""
             for game in recent_games:
-                champion = game['champion']
-                result = game['result']
-                kda = f"{game['kill']}/{game['death']}/{game['assist']}"
+                champion = game['champion'].ljust(10)
+                result = game['result'].center(2)
+                kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
                 returnTXT += f"{champion} {result} {kda} \n"
 
             embed.add_field(name=name, value= returnTXT, inline=True)
