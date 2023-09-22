@@ -1062,7 +1062,7 @@ async def 전적(ctx, *, text):
             output = player_statistics(player_info[name])
             embed.add_field(name=name, value=output, inline=False)
             result = player_statistics_resent10(player_info[name])
-            embed.add_field(name=f"\n 최근 {result['result']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
+            embed.add_field(name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
 
     field_count = len(embed.fields)
     if field_count > 0:
