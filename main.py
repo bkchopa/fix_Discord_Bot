@@ -1003,48 +1003,49 @@ async def 맨션(ctx, index, *, text=None):
 @bot.command()
 async def 전적(ctx, *, text=None):
     arr = list()
-    try:
-        num = int(text)
-        if num == 1:
-            ch1 = bot.get_channel(944246730722013194)
-            ch2 = bot.get_channel(1133763001766391808)
-            ch3 = bot.get_channel(890160695499423774)
-        elif num == 2:
-            ch1 = bot.get_channel(890161063130177536)
-            ch2 = bot.get_channel(921018416473718834)
-            ch3 = bot.get_channel(921703036294926366)
-        elif num == 3:
-            ch1 = bot.get_channel(920998312998502451)
-            ch2 = bot.get_channel(921018416473718834)
-            ch3 = bot.get_channel(921703123221884969)
 
-        for member in ch1.members:
-            # if member.voice.self_mute:
-            # continue
-            nickname = member.nick
-            realNick = nickname.split('/')[0]
-            arr.append(realNick)
+    if text is None:
+        arr.clear()
+        nickname = ctx.message.author.nick
+        arr.apend(nickname.split('/')[0].lower())
+    else:
+        try:
+            num = int(text)
+            if num == 1:
+                ch1 = bot.get_channel(944246730722013194)
+                ch2 = bot.get_channel(1133763001766391808)
+                ch3 = bot.get_channel(890160695499423774)
+            elif num == 2:
+                ch1 = bot.get_channel(890161063130177536)
+                ch2 = bot.get_channel(921018416473718834)
+                ch3 = bot.get_channel(921703036294926366)
+            elif num == 3:
+                ch1 = bot.get_channel(920998312998502451)
+                ch2 = bot.get_channel(921018416473718834)
+                ch3 = bot.get_channel(921703123221884969)
 
-        for member in ch2.members:
-            # if member.voice.self_mute:
-            # continue
-            nickname = member.nick
-            realNick = nickname.split('/')[0]
-            arr.append(realNick)
+            for member in ch1.members:
+                # if member.voice.self_mute:
+                # continue
+                nickname = member.nick
+                realNick = nickname.split('/')[0]
+                arr.append(realNick)
 
-        for member in ch3.members:
-            # if member.voice.self_mute:
-            # continue
-            nickname = member.nick
-            realNick = nickname.split('/')[0]
-            arr.append(realNick)
+            for member in ch2.members:
+                # if member.voice.self_mute:
+                # continue
+                nickname = member.nick
+                realNick = nickname.split('/')[0]
+                arr.append(realNick)
 
-    except ValueError:
-        if text is None:
-            arr.clear()
-            nickname = ctx.message.author.nick
-            arr.apend(nickname.split('/')[0].lower())
-        else:
+            for member in ch3.members:
+                # if member.voice.self_mute:
+                # continue
+                nickname = member.nick
+                realNick = nickname.split('/')[0]
+                arr.append(realNick)
+
+        except ValueError:
             arr = text.split(',')
 
     embed = discord.Embed(title="최근 전적", color=discord.Color.blue())
