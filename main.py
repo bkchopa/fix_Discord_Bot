@@ -1052,7 +1052,7 @@ async def 전적(ctx, *, text):
             if name in player_info:
                 result = player_statistics_resent10(player_info[name])
                 embed.add_field(
-                    name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
+                    name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
     else:
         name = arr[0]
         if name == "트롤트롤":

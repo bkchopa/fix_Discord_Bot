@@ -28,16 +28,21 @@ rankingSheet = spreadsheet.worksheet("내전 순위")
 player_info = {}
 player_ranking = {}
 async def reload():
+    player_info.clear()
+    player_ranking.clear()
+
     all_data = rowDatasSheet.get_all_values()
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
         position = row[1]
-        nickname = row[2]
+        nickname = row[2].lower()
         champion = row[3]
         result = row[4]
         kill = row[6]
         death = row[7]
         assist = row[8]
+
+        if posi
 
         if nickname not in player_info:
             player_info[nickname] = []
@@ -63,7 +68,7 @@ async def reload():
     #랭킹
     all_values = rankingSheet.get_all_values()
     # E열(등수), F열(닉네임), G열(점수)부터 시작하는 부분만 추출
-    ranked_data = [{"nickname": row[5], "rank": row[4], "score": row[6]} for row in all_values[2:]]
+    ranked_data = [{"nickname": row[5].lower(), "rank": row[4], "score": row[6]} for row in all_values[2:]]
     # 닉네임을 키로 하고, 등수와 점수를 값으로 하는 딕셔너리 생성
     for item in ranked_data:
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
