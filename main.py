@@ -63,7 +63,7 @@ def player_statistics(player_data):
 
     # Print overall statistics
     output = (f"총 전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
-              f"Kill: {avg_kill:.2f} - Death: {avg_death:.2f} - Assist: {avg_assist:.2f} - KDA: {kda:.2f}\n")
+              f" - KDA: {kda:.2f}\n")
 
     # Positional statistics
     for position in positions:
@@ -86,7 +86,7 @@ def player_statistics(player_data):
         pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
 
         output += (f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
-                   f"Kill: {pos_avg_kill:.2f} - Death: {pos_avg_death:.2f} - Assist: {pos_avg_assist:.2f} - KDA: {pos_kda_str}")
+                   f" - KDA: {pos_kda_str}")
 
     return output
 
