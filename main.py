@@ -81,10 +81,12 @@ def player_statistics(player_data):
         pos_avg_death = pos_total_deaths / pos_total_games if pos_total_games != 0 else 0
         pos_avg_assist = pos_total_assists / pos_total_games if pos_total_games != 0 else 0
 
-        pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else "Infinite"
+        pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else float('inf') # 'Infinite' 대신에 float('inf')를 사용
+
+        pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
 
         output += (f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
-                   f"Kill: {pos_avg_kill:.2f} - Death: {pos_avg_death:.2f} - Assist: {pos_avg_assist:.2f} - KDA: {pos_kda:.2f}")
+                   f"Kill: {pos_avg_kill:.2f} - Death: {pos_avg_death:.2f} - Assist: {pos_avg_assist:.2f} - KDA: {pos_kda_str}")
 
     return output
 
