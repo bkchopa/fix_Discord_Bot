@@ -1001,7 +1001,7 @@ async def 맨션(ctx, index, *, text=None):
 
 
 @bot.command()
-async def 전적(ctx, *, text):
+async def 전적(ctx, *, text=None):
     arr = list()
     try:
         num = int(text)
