@@ -1057,7 +1057,7 @@ async def 전적(ctx, *, text):
             if name in player_info:
                 result = player_statistics_resent10(player_info[name])
                 embed.add_field(
-                    name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
+                    name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}", value=result['result'], inline=True)
     else:
         name = arr[0].lower()
         if name == "트롤트롤":
@@ -1070,7 +1070,7 @@ async def 전적(ctx, *, text):
             rank =player_ranking[name]['rank']
             embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
             result = player_statistics_resent10(player_info[name])
-            embed.add_field(name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
+            embed.add_field(name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}", value=result['result'], inline=True)
 
     field_count = len(embed.fields)
     if field_count > 0:
