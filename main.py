@@ -1040,12 +1040,17 @@ async def 전적(ctx, *, text):
             arr.append(realNick)
 
     except ValueError:
-        arr = text.split(',')
-
+        if text is None:
+            arr.clear()
+            nickname = ctx.message.author.nick
+            arr.apend(nickname.split('/')[0].lower())
+        else:
+            arr = text.split(',')
 
     embed = discord.Embed(title="최근 전적", color=discord.Color.blue())
     if len(arr) > 1:
         for name in arr:
+            name = name.lower()
             if name == "트롤트롤":
                 name = "포롤포롤"
 
@@ -1054,7 +1059,7 @@ async def 전적(ctx, *, text):
                 embed.add_field(
                     name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
     else:
-        name = arr[0]
+        name = arr[0].lower()
         if name == "트롤트롤":
             name = "포롤포롤"
 

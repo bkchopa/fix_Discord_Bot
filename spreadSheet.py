@@ -42,8 +42,6 @@ async def reload():
         death = row[7]
         assist = row[8]
 
-        if posi
-
         if nickname not in player_info:
             player_info[nickname] = []
 
