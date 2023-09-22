@@ -64,6 +64,4 @@ async def reload():
     print('시트 읽어오기 완료')
 
 
-await reload()
-
 

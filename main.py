@@ -535,7 +535,7 @@ async def resetList():
     hour = datetime.datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
-        await ch.send("명단  리셋합니다!")
+        await ch.send("명단 리셋합니다!")
         waitList.clear()
         await printlist(ch)
 
