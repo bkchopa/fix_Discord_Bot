@@ -118,7 +118,7 @@ def player_statistics_resent10(player_data):
         streak = "(" + str(lossStreak) + "연패중 ㅜ)"
 
     return {
-        "totalMatchCnt" : len(recent_games)
+        "totalMatchCnt" : len(recent_games),
         "winCnt": winCnt,
         "lossCnt": lossCnt,
         "streak": streak,
