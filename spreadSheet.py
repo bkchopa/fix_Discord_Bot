@@ -26,7 +26,7 @@ worksheet = spreadsheet.worksheet("기입")
 #print(worksheet.get_all_records())  # 모든 데이터 가져오기
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
 player_info = {}
-def reload():
+async def reload():
     all_data = worksheet.get_all_values()
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
@@ -64,6 +64,6 @@ def reload():
     print('시트 읽어오기 완료')
 
 
-reload()
+await reload()
 
 

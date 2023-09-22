@@ -41,45 +41,89 @@ memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
 
-
 def player_statistics(player_data):
+    # Define positions in the order you want
+    positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
+
     total_games = len(player_data)
     wins = sum(1 for game in player_data if game['result'] == '승')
+    losses = total_games - wins
+    win_rate = (wins / total_games) * 100
 
-    total_kill = sum(int(game['kill']) for game in player_data)
-    total_death = sum(int(game['death']) for game in player_data)
-    total_assist = sum(int(game['assist']) for game in player_data)
+    total_kills = sum(int(game['kill']) for game in player_data)
+    total_deaths = sum(int(game['death']) for game in player_data)
+    total_assists = sum(int(game['assist']) for game in player_data)
 
-    average_kda = (total_kill + total_assist) / total_death if total_death != 0 else "Infinity"
-    avg_kill = total_kill / total_games
-    avg_death = total_death / total_games
-    avg_assist = total_assist / total_games
+    avg_kill = total_kills / total_games
+    avg_death = total_deaths / total_games
+    avg_assist = total_assists / total_games
 
-    position_stats = {}
-    for game in player_data:
-        position = game['position']
-        if position not in position_stats:
-            position_stats[position] = {'wins': 0, 'games': 0, 'kills': 0, 'deaths': 0, 'assists': 0}
-        position_stats[position]['games'] += 1
-        position_stats[position]['kills'] += int(game['kill'])
-        position_stats[position]['deaths'] += int(game['death'])
-        position_stats[position]['assists'] += int(game['assist'])
-        if game['result'] == '승':
-            position_stats[position]['wins'] += 1
+    kda = (total_kills + total_assists) / total_deaths if total_deaths != 0 else "Infinite"
 
-    output = f"{total_games}전 {wins}승/{total_games - wins}패 - {wins / total_games * 100:.2f}%"
-    output += f"Kill: {avg_kill:.2f}, Death: {avg_death:.2f}, Assist: {avg_assist:.2f}, KDA: {average_kda:.2f}\n\n"
-    output += "포지션별 전적 및 KDA:\n"
-    for position, stats in position_stats.items():
-        pos_win_rate = stats['wins'] / stats['games'] * 100
-        pos_avg_kda = (stats['kills'] + stats['assists']) / stats['deaths'] if stats['deaths'] != 0 else "Infinity"
-        output += (
-            f"{position} {stats['games']}전 {stats['wins']}승/{stats['games'] - stats['wins']}패 - {pos_win_rate:.2f}%"
-            f"Kill: {stats['kills'] / stats['games']:.2f}, Death: {stats['deaths'] / stats['games']:.2f}, "
-            f"Assist: {stats['assists'] / stats['games']:.2f}, KDA: {pos_avg_kda:.2f}\n")
+    # Print overall statistics
+    output = (f"총 전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
+              f"Kill: {avg_kill:.2f} - Death: {avg_death:.2f} - Assist: {avg_assist:.2f} - KDA: {kda:.2f}\n")
+
+    # Positional statistics
+    for position in positions:
+        position_games = [game for game in player_data if game['position'] == position]
+        if not position_games:  # Skip if no games for this position
+            continue
+
+        pos_total_games = len(position_games)
+        pos_wins = sum(1 for game in position_games if game['result'] == '승')
+        pos_losses = pos_total_games - pos_wins
+        pos_win_rate = (pos_wins / pos_total_games) * 100
+
+        pos_total_kills = sum(int(game['kill']) for game in position_games)
+        pos_total_deaths = sum(int(game['death']) for game in position_games)
+        pos_total_assists = sum(int(game['assist']) for game in position_games)
+
+        pos_avg_kill = pos_total_kills / pos_total_games
+        pos_avg_death = pos_total_deaths / pos_total_games
+        pos_avg_assist = pos_total_assists / pos_total_games
+
+        pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else "Infinite"
+
+        output += (f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
+                   f"Kill: {pos_avg_kill:.2f} - Death: {pos_avg_death:.2f} - Assist: {pos_avg_assist:.2f} - KDA: {pos_kda:.2f}")
 
     return output
 
+def player_statistics_resent10(player_data):
+    recent_games = player_data[:10]
+    recent_games = recent_games[::-1]
+    returnTXT = ""
+    winCnt = 0
+    lossCnt = 0
+    winStreak = 0
+    lossStreak = 0
+    for game in recent_games:
+        champion = game['champion'].ljust(8)
+        result = game['result'].center(2)
+        if game['result'] == "승":
+            winCnt += 1
+            winStreak += 1
+            lossStreak = 0
+        else:
+            lossCnt += 1
+            lossStreak += 1
+            winStreak = 0
+        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
+        returnTXT += f"{champion} {result} {kda} \n"
+    streak = ""
+    if winStreak > lossStreak:
+        streak = "(" + str(winStreak) + "연승중!)"
+    else:
+        streak = "(" + str(lossStreak) + "연패중 ㅜ)"
+
+    return {
+        "totalMatchCnt" : len(recent_games)
+        "winCnt": winCnt,
+        "lossCnt": lossCnt,
+        "streak": streak,
+        "result": returnTXT
+    }
 
 async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
@@ -487,7 +531,7 @@ async def 복구(ctx, *, text=None):
 
 @tasks.loop(hours=1)
 async def resetList():
-    spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
+    await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
     hour = datetime.datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
@@ -1006,32 +1050,9 @@ async def 전적(ctx, *, text):
                 name = "포롤포롤"
 
             if name in player_info:
-                recent_games = player_info[name][:10]
-                recent_games = recent_games[::-1]
-                returnTXT = ""
-                winCnt = 0
-                lossCnt = 0
-                winStreak = 0
-                lossStreak = 0
-                for game in recent_games:
-                    champion = game['champion'].ljust(8)
-                    result = game['result'].center(2)
-                    if game['result'] == "승":
-                        winCnt += 1
-                        winStreak+=1
-                        lossStreak = 0
-                    else:
-                        lossCnt += 1
-                        lossStreak += 1
-                        winStreak = 0
-                    kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
-                    returnTXT += f"{champion} {result} {kda} \n"
-                streak =""
-                if winStreak > lossStreak :
-                    streak = "("+str(winStreak)+"연승중!)"
-                else:
-                    streak = "("+str(lossStreak) + "연패중 ㅜ)"
-                embed.add_field(name=name + f"\n{len(recent_games)}전 " + str(winCnt) + "승 " + str(lossCnt) + "패 " + streak, value=returnTXT ,inline=True)
+                result = player_statistics_resent10(player_info[name])
+                embed.add_field(
+                    name=f"\n 최근 {result['result']}전 " + result['winCnt'] + "승 " + result['lossCnt'] + "패 " + result['streak'],value=result['result'], inline=True)
     else:
         name = arr[0]
         if name == "트롤트롤":
@@ -1040,6 +1061,8 @@ async def 전적(ctx, *, text):
         if name in player_info:
             output = player_statistics(player_info[name])
             embed.add_field(name=name, value=output, inline=False)
+            result = player_statistics_resent10(player_info[name])
+            embed.add_field(name=f"\n 최근 {result['result']}전 " + result['winCnt'] + "승 " + result['lossCnt'] + "패 " + result['streak'],value=result['result'], inline=True)
 
 
 
