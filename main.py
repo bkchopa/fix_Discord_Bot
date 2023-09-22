@@ -49,15 +49,15 @@ def player_statistics(player_data):
     total_games = len(player_data)
     wins = sum(1 for game in player_data if game['result'] == '승')
     losses = total_games - wins
-    win_rate = (wins / total_games) * 100
+    win_rate = (wins / total_games) * 100 if total_games != 0 else 0
 
     total_kills = sum(int(game['kill']) for game in player_data)
     total_deaths = sum(int(game['death']) for game in player_data)
     total_assists = sum(int(game['assist']) for game in player_data)
 
-    avg_kill = total_kills / total_games
-    avg_death = total_deaths / total_games
-    avg_assist = total_assists / total_games
+    avg_kill = total_kills / total_games if total_games != 0 else 0
+    avg_death = total_deaths / total_games if total_games != 0 else 0
+    avg_assist = total_assists / total_games if total_games != 0 else 0
 
     kda = (total_kills + total_assists) / total_deaths if total_deaths != 0 else "Infinite"
 
@@ -68,21 +68,18 @@ def player_statistics(player_data):
     # Positional statistics
     for position in positions:
         position_games = [game for game in player_data if game['position'] == position]
-        if not position_games:  # Skip if no games for this position
-            continue
-
         pos_total_games = len(position_games)
         pos_wins = sum(1 for game in position_games if game['result'] == '승')
         pos_losses = pos_total_games - pos_wins
-        pos_win_rate = (pos_wins / pos_total_games) * 100
+        pos_win_rate = (pos_wins / pos_total_games) * 100 if pos_total_games != 0 else 0
 
         pos_total_kills = sum(int(game['kill']) for game in position_games)
         pos_total_deaths = sum(int(game['death']) for game in position_games)
         pos_total_assists = sum(int(game['assist']) for game in position_games)
 
-        pos_avg_kill = pos_total_kills / pos_total_games
-        pos_avg_death = pos_total_deaths / pos_total_games
-        pos_avg_assist = pos_total_assists / pos_total_games
+        pos_avg_kill = pos_total_kills / pos_total_games if pos_total_games != 0 else 0
+        pos_avg_death = pos_total_deaths / pos_total_games if pos_total_games != 0 else 0
+        pos_avg_assist = pos_total_assists / pos_total_games if pos_total_games != 0 else 0
 
         pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else "Infinite"
 
