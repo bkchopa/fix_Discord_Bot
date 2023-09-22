@@ -8,6 +8,7 @@ import asyncio
 from collections import defaultdict
 import spreadSheet
 from spreadSheet import player_info
+from spreadSheet import player_ranking
 
 
 intents = discord.Intents.default()
@@ -1059,8 +1060,13 @@ async def 전적(ctx, *, text):
             name = "포롤포롤"
 
         if name in player_info:
+            # 워크시트 선택
+
+
             output = player_statistics(player_info[name])
-            embed.add_field(name=name, value=output, inline=False)
+            score = player_ranking[name]['score']
+            rank =player_ranking[name]['rank']
+            embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
             result = player_statistics_resent10(player_info[name])
             embed.add_field(name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패 {result['streak']}", value=result['result'], inline=True)
 

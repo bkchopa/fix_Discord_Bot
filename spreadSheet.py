@@ -20,14 +20,15 @@ client = gspread.authorize(creds)
 SPREADSHEET_ID = os.environ['SPREADSHEET_ID']
 spreadsheet = client.open_by_key(SPREADSHEET_ID)
 # 워크시트 선택
-worksheet = spreadsheet.worksheet("기입")
-
+rowDatasSheet = spreadsheet.worksheet("기입")
+rankingSheet = spreadsheet.worksheet("내전 순위")
 # 데이터 읽기와 쓰기 예제
 #print(worksheet.get_all_records())  # 모든 데이터 가져오기
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
 player_info = {}
+player_ranking = {}
 async def reload():
-    all_data = worksheet.get_all_values()
+    all_data = rowDatasSheet.get_all_values()
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
         position = row[1]
@@ -59,7 +60,13 @@ async def reload():
             {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
              "assist": assist})
 
-
+    #랭킹
+    all_values = rankingSheet.get_all_values()
+    # E열(등수), F열(닉네임), G열(점수)부터 시작하는 부분만 추출
+    ranked_data = [{"nickname": row[5], "rank": row[4], "score": row[6]} for row in all_values[2:]]
+    # 닉네임을 키로 하고, 등수와 점수를 값으로 하는 딕셔너리 생성
+    for item in ranked_data:
+        player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
     print('시트 읽어오기 완료')
 
