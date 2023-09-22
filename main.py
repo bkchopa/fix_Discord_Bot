@@ -1007,7 +1007,7 @@ async def 전적(ctx, *, text=None):
     if text is None:
         arr.clear()
         nickname = ctx.message.author.nick
-        arr.apend(nickname.split('/')[0].lower())
+        arr.append(nickname.split('/')[0].lower())
     else:
         try:
             num = int(text)
