@@ -51,9 +51,9 @@ def player_statistics(player_data):
     losses = total_games - wins
     win_rate = (wins / total_games) * 100 if total_games != 0 else 0
 
-    total_kills = sum(int(game['kill']) for game in player_data)
-    total_deaths = sum(int(game['death']) for game in player_data)
-    total_assists = sum(int(game['assist']) for game in player_data)
+    total_kills = sum(int(game['kill']) if game['kill'] else 0 for game in player_data)
+    total_deaths = sum(int(game['death']) if game['death'] else 0 for game in player_data)
+    total_assists = sum(int(game['assist']) if game['assist'] else 0 for game in player_data)
 
     avg_kill = total_kills / total_games if total_games != 0 else 0
     avg_death = total_deaths / total_games if total_games != 0 else 0
@@ -1065,8 +1065,6 @@ async def 전적(ctx, *, text):
 
         if name in player_info:
             # 워크시트 선택
-
-
             output = player_statistics(player_info[name])
             score = player_ranking[name]['score']
             rank =player_ranking[name]['rank']

@@ -50,7 +50,7 @@ async def reload():
              "assist": assist})
 
         position = row[9]
-        nickname = row[10]
+        nickname = row[10].lower()
         champion = row[11]
         result = row[12]
         kill = row[14]
