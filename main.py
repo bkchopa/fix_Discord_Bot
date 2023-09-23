@@ -1139,9 +1139,6 @@ async def 전적(ctx, *, text=None):
 
             if name in player_info:
                 result = player_statistics_recent5(player_info[name])
-                embed.add_field(
-                    name=f"{name}\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
-                    value=result['resultsWithEmojis'], inline=False)
 
                 # 모스트3
                 most3_champs = spreadSheet.get_most_champions_for_nickname(name, 5)
@@ -1151,9 +1148,13 @@ async def 전적(ctx, *, text=None):
                     winrate = champ[1] * 100  # 두 번째 인덱스로 승률에 접근
                     total_picked = champ[2]  # 세 번째 인덱스로 게임 수에 접근
                     champ_details.append(f"{champ_name}: {total_picked}회, {winrate:.2f}%")
+                    champ_text = "\n".join(champ_details)
 
-                champ_text = "\n".join(champ_details)
-                embed.add_field(name="Most Pick", value=champ_text, inline=True)
+                embed.add_field(
+                    name=f"{name}\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
+                    value=f"{result['resultsWithEmojis']} \nMost Pick\n {champ_text}", inline=True)
+
+
 
 
 
