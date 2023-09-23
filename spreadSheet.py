@@ -99,6 +99,6 @@ async def reload():
             team_indices[team] = game_index
 
     # 저장된 데이터를 기반으로 원하는 문자열 형태로 변환
-    result = " ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
+    result = ", ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
 
     update_date = f"{formatted_date} {result}까지 반영"
