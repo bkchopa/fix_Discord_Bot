@@ -27,6 +27,8 @@ rankingSheet = spreadsheet.worksheet("내전 순위")
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
 player_info = {}
 player_ranking = {}
+update_date = str()
+
 async def reload():
     player_info.clear()
     player_ranking.clear()
@@ -34,6 +36,9 @@ async def reload():
     all_data = rowDatasSheet.get_all_values()
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
+        if not row[15]:
+            continue
+
         position = row[1]
         nickname = row[2].lower()
         champion = row[3]
@@ -42,12 +47,17 @@ async def reload():
         death = row[7]
         assist = row[8]
 
+
+
         if nickname not in player_info:
             player_info[nickname] = []
 
         player_info[nickname].append(
             {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
              "assist": assist})
+
+        if not nickname or not assist:
+            continue
 
         position = row[9]
         nickname = row[10].lower()
@@ -71,7 +81,15 @@ async def reload():
     for item in ranked_data:
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
-    print('시트 읽어오기 완료')
+    # 리스트를 역순으로 순회하면서 첫 번째로 나타나는 비지 않은 값을 찾습니다.
+
+    all_values = spreadsheet.col_values(1)  # 여기서 'sheet'는 gspread에서의 Worksheet 객체라고 가정합니다.
+    global update_date
+    for value in reversed(all_values):
+        if value.strip():  # 값이 비어있지 않다면
+            update_date = value
+            break
+
 
 
 

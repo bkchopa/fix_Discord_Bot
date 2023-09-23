@@ -87,7 +87,7 @@ def player_statistics(player_data):
         if pos_total_games >= 5:
             if pos_win_rate >= 60:
                 win_rate_symbol = "👍"
-            elif pos_win_rate <= 40:
+            elif pos_win_rate < 40:
                 win_rate_symbol = "👎"
             else:
                 win_rate_symbol = " "
@@ -1086,7 +1086,7 @@ async def 전적(ctx, *, text=None):
         except ValueError:
             arr = text.split(',')
 
-    embed = discord.Embed(title="최근 전적", color=discord.Color.blue())
+    embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}까지 반영", color=discord.Color.blue())
     if len(arr) > 1:
         for name in arr:
             name = name.lower()
