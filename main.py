@@ -44,11 +44,11 @@ currentAuctionMember = str()
 
 def determine_win_rate_emoji(win_rate):
     if win_rate >= 60:
-        return "🔵"  # 파랑색 이모지 (이를 적절한 이모지로 변경 가능)
+        return "👍"  # 파랑색 이모지 (이를 적절한 이모지로 변경 가능)
     elif win_rate <= 40:
-        return "🔴"  # 빨간색 이모지 (이를 적절한 이모지로 변경 가능)
+        return "👎"  # 빨간색 이모지 (이를 적절한 이모지로 변경 가능)
     else:
-        return ""  # 중간 값은 아무런 이모지 없이
+        return " "  # 중간 값은 아무런 이모지 없이
 
 def player_statistics(player_data):
     # Define positions in the order you want
@@ -127,22 +127,21 @@ def player_statistics_recent10(player_data):
     else:
         streak = "(" + str(lossStreak) + "연패중 ㅜ)"
 
-    win_results = ""
-    loss_results = ""
+    results_with_emojis = ""
 
-    for line in returnTXT.split("\n"):
-        if "승" in line:
-            win_results += line + "\n"
-        elif "패" in line:
-            loss_results += line + "\n"
+    for game in recent_games:
+        champion = game['champion'].ljust(8)
+        emoji = "🔵" if game['result'] == "승" else "🔴"
+        result = game['result'].center(2)
+        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
+        results_with_emojis += f"{emoji} {champion} {result} {kda} \n"
 
     return {
         "totalMatchCnt": len(recent_games),
         "winCnt": winCnt,
         "lossCnt": lossCnt,
         "streak": streak,
-        "winResults": win_results.strip(),
-        "lossResults": loss_results.strip()
+        "resultsWithEmojis": results_with_emojis.strip()
     }
 
 async def send_game_results(ctx, statistics):
@@ -1097,7 +1096,8 @@ async def 전적(ctx, *, text=None):
             if name in player_info:
                 result = player_statistics_recent10(player_info[name])
                 embed.add_field(
-                    name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}", value=result['result'], inline=True)
+                    name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
+                    value=result['resultsWithEmojis'], inline=True)
     else:
         name = arr[0].lower()
         if name == "트롤트롤":
@@ -1110,11 +1110,9 @@ async def 전적(ctx, *, text=None):
             rank =player_ranking[name]['rank']
             embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
             result = player_statistics_recent10(player_info[name])
-
-            embed = discord.Embed(title="최근 10경기 결과")
             embed.add_field(
                 name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
-                value="**승리**\n" + result['winResults'] + "\n\n**패배**\n" + result['lossResults'], inline=True)
+                value=result['resultsWithEmojis'], inline=True)
 
     field_count = len(embed.fields)
     if field_count > 0:
