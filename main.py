@@ -1144,17 +1144,17 @@ async def 전적(ctx, *, text=None):
                     value=result['resultsWithEmojis'], inline=True)
 
                 # 모스트3
-                champ_details = []
+                # 모스트3
                 most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
+                champ_details = []
                 for champ in most3_champs:
-                    champ_name = champ['champion']
-                    winrate = champ['winrate']
-                    games_played = champ['games']
-                    total_picked = champ['picked']
-                    champ_details.append(f"{champ_name}: 승률 {winrate:.2f}% ({games_played} 게임, {total_picked} 픽)")
+                    champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근
+                    winrate = champ[1] * 100  # 두 번째 인덱스로 승률에 접근
+                    total_picked = champ[2]  # 세 번째 인덱스로 게임 수에 접근
+                    champ_details.append(f"{champ_name}: {total_picked} 픽, 승률 {winrate:.2f}%")
 
                 champ_text = "\n".join(champ_details)
-                embed.add_field(name="Pick Most3", value=champ_text, inline=False)
+                embed.add_field(name="Most Pick", value=champ_text, inline=False)
 
 
 
@@ -1175,11 +1175,10 @@ async def 전적(ctx, *, text=None):
             most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
             champ_details = []
             for champ in most3_champs:
-                champ_name = champ['champion']
-                winrate = champ['winrate']
-                games_played = champ['games']
-                total_picked = champ['picked']
-                champ_details.append(f"{champ_name}: 승률 {winrate:.2f}% ({games_played} 게임, {total_picked} 픽)")
+                champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근
+                winrate = champ[1] * 100  # 두 번째 인덱스로 승률에 접근
+                total_picked = champ[2]  # 세 번째 인덱스로 게임 수에 접근
+                champ_details.append(f"{champ_name}: {total_picked} 픽, 승률 {winrate:.2f}%")
 
             champ_text = "\n".join(champ_details)
             embed.add_field(name="Most Pick", value=champ_text, inline=True)
