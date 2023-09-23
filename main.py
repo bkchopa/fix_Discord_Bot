@@ -1145,7 +1145,7 @@ async def 전적(ctx, *, text=None):
 
                 # 모스트3
                 # 모스트3
-                most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
+                most3_champs = spreadSheet.get_most5_champions_for_nickname(name)
                 champ_details = []
                 for champ in most3_champs:
                     champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근
@@ -1172,7 +1172,7 @@ async def 전적(ctx, *, text=None):
 
 
             # 모스트3
-            most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
+            most3_champs = spreadSheet.get_most5_champions_for_nickname(name)
             champ_details = []
             for champ in most3_champs:
                 champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근
