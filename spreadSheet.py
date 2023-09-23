@@ -31,6 +31,10 @@ player_ranking = {}
 update_date = ""
 top_champions = {}
 
+def get_most5_champions_for_nickname(nickname):
+    champs = top_champions.get(nickname, [])
+    return champs
+
 async def reload():
     global update_date
     player_info.clear()
@@ -154,9 +158,14 @@ async def reload():
             (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"]) for champ in sorted_champs[:5]
         ]
 
+    for nickname, champs in top_champions.items():
+        print(f"{nickname}:")
+        for champ, winrate, games, picks in champs:
+            print(f"  {champ} - 승률: {winrate * 100:.2f}% ({games} 게임, {picks} 픽)")
+
+    print(get_most5_champions_for_nickname(nickname))
 
 
-def get_most5_champions_for_nickname(nickname):
-    champs = top_champions.get(nickname, [])
-    return champs
+
+
 
