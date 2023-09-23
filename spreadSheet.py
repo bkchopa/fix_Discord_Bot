@@ -82,23 +82,35 @@ async def reload():
 
     values_in_column_A = rowDatasSheet.col_values(1)
     team_indices = {}
-
-    pattern = re.compile(r'^\d+-\d+ \d+-\d+$')  # 해당 형식을 확인하는 정규 표현식
+    latest_date = None  # 최신 날짜를 저장하기 위한 변수
 
     for value in reversed(values_in_column_A):
-        if not pattern.match(value):  # 형식에 맞지 않는 경우 건너뜀
+        if not value:  # 빈 값은 건너뜀
             continue
 
-        date, indices = value.split(" ")
-        month, day = date.split("-")
-        formatted_date = f"{month}월 {day}일"
+        # 데이터 분리
+        parts = value.split(" ")
+
+        # 9-2 1-8 형식의 데이터만 처리
+        if len(parts) != 2 or '-' not in parts[0] or '-' not in parts[1]:
+            continue
+
+        date, indices = parts
         team, game_index = indices.split("-")
+
+        # 최신 날짜 업데이트
+        if not latest_date:
+            latest_date = date
 
         # 해당 팀의 마지막 게임 인덱스가 아직 저장되지 않았다면 저장
         if team not in team_indices:
             team_indices[team] = game_index
 
+    # 월-일을 월 일 형식으로 변경
+    latest_date = latest_date.replace("-", "월 ") + "일"
+
     # 저장된 데이터를 기반으로 원하는 문자열 형태로 변환
     result = ", ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
 
-    update_date = f"{formatted_date} {result}까지 반영"
+    global update_date
+    update_date = f"{latest_date} {result}까지 반영"
