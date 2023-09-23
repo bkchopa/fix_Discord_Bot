@@ -82,13 +82,12 @@ async def reload():
 
     values_in_column_A = rowDatasSheet.col_values(1)
     team_indices = {}
-    latest_date = None  # 최신 날짜를 저장하기 위한 변수
+    latest_date = None
 
     for value in reversed(values_in_column_A):
         if not value:  # 빈 값은 건너뜀
             continue
 
-        # 데이터 분리
         parts = value.split(" ")
 
         # 9-2 1-8 형식의 데이터만 처리
@@ -102,9 +101,16 @@ async def reload():
         if not latest_date:
             latest_date = date
 
-        # 해당 팀의 마지막 게임 인덱스가 아직 저장되지 않았다면 저장
-        if team not in team_indices:
+        # 해당 날짜의 모든 팀의 게임 인덱스 저장
+        if date == latest_date:
             team_indices[team] = game_index
+        else:
+            break  # 최신 날짜만 고려하므로 나머지는 처리할 필요 없음
+
+    # 1, 2, 3 팀 중 기록되지 않은 팀의 게임 인덱스를 0-0으로 설정
+    for team_num in ['1', '2', '3']:
+        if team_num not in team_indices:
+            team_indices[team_num] = '0'
 
     # 월-일을 월 일 형식으로 변경
     latest_date = latest_date.replace("-", "월 ") + "일"
