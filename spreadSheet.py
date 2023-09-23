@@ -29,6 +29,7 @@ rankingSheet = spreadsheet.worksheet("내전 순위")
 player_info = {}
 player_ranking = {}
 update_date = ""
+top_champions = {}
 
 async def reload():
     global update_date
@@ -80,6 +81,8 @@ async def reload():
     for item in ranked_data:
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
+
+    #날짜
     values_in_column_A = rowDatasSheet.col_values(1)
     team_indices = {}
     latest_date = None
@@ -120,3 +123,46 @@ async def reload():
 
     global update_date
     update_date = f"{latest_date} {result}까지 반영"
+
+
+
+
+
+
+    # 각 플레이어별로 챔피언의 게임 및 승리 데이터를 저장
+    champion_data = {}
+
+    for nickname, games in player_info.items():
+        champion_data[nickname] = {}
+
+        for game in games:
+            champion = game["champion"]
+            result = game["result"]
+
+            if champion not in champion_data[nickname]:
+                champion_data[nickname][champion] = {"games": 0, "wins": 0}
+
+            champion_data[nickname][champion]["games"] += 1
+            if result == "승":
+                champion_data[nickname][champion]["wins"] += 1
+
+    # 각 플레이어별로 챔피언의 승률 및 게임 수를 기준으로 정렬
+
+
+    for nickname, champs_data in champion_data.items():
+        sorted_champs = sorted(champs_data.items(), key=lambda x: (-x[1]["wins"] / x[1]["games"], -x[1]["games"]))
+        top_champions[nickname] = [
+            (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"], champ[1]["games"]) for champ in
+            sorted_champs[:5]]
+
+    # 결과 출력
+    for nickname, champs in top_champions.items():
+        print(f"{nickname}:")
+        for champ, winrate, games, picks in champs:
+            print(f"  {champ} - 승률: {winrate * 100:.2f}% ({games} 게임, {picks} 픽)")
+        print()
+
+def get_most5_champions_for_nickname(nickname):
+    champs = top_champions.get(nickname, [])
+    return champs
+

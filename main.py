@@ -144,6 +144,50 @@ def player_statistics_recent10(player_data):
         "resultsWithEmojis": results_with_emojis.strip()
     }
 
+def player_statistics_recent5(player_data):
+    recent_games = player_data[:5]
+    recent_games = recent_games[::-1]
+    returnTXT = ""
+    winCnt = 0
+    lossCnt = 0
+    winStreak = 0
+    lossStreak = 0
+    for game in recent_games:
+        champion = game['champion'].ljust(8)
+        result = game['result'].center(2)
+        if game['result'] == "승":
+            winCnt += 1
+            winStreak += 1
+            lossStreak = 0
+        else:
+            lossCnt += 1
+            lossStreak += 1
+            winStreak = 0
+        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
+        returnTXT += f"{champion} {result} {kda} \n"
+    streak = ""
+    if winStreak > lossStreak:
+        streak = "(" + str(winStreak) + "연승중!)"
+    else:
+        streak = "(" + str(lossStreak) + "연패중 ㅜ)"
+
+    results_with_emojis = ""
+
+    for game in recent_games:
+        champion = game['champion'].ljust(8)
+        emoji = "🔵" if game['result'] == "승" else "🔴"
+        result = game['result'].center(2)
+        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
+        results_with_emojis += f"{emoji} {champion} {kda} \n"
+
+    return {
+        "totalMatchCnt": len(recent_games),
+        "winCnt": winCnt,
+        "lossCnt": lossCnt,
+        "streak": streak,
+        "resultsWithEmojis": results_with_emojis.strip()
+    }
+
 async def send_game_results(ctx, statistics):
     embed = discord.Embed(title="최근 10경기 결과", description=f"전체: {statistics['totalMatchCnt']}전, 승: {statistics['winCnt']}승, 패: {statistics['lossCnt']}패 {statistics['streak']}")
 
@@ -1094,10 +1138,26 @@ async def 전적(ctx, *, text=None):
                 name = "포롤포롤"
 
             if name in player_info:
-                result = player_statistics_recent10(player_info[name])
+                result = player_statistics_recent5(player_info[name])
                 embed.add_field(
                     name=f"{name}\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
                     value=result['resultsWithEmojis'], inline=True)
+
+                # 모스트3
+                champ_details = []
+                most3_champs = spreadSheet.get_most5_champions(nickname)
+                for champ in most3_champs:
+                    champ_name = champ['champion']
+                    winrate = champ['winrate']
+                    games_played = champ['games']
+                    total_picked = champ['picked']
+                    champ_details.append(f"{champ_name}: 승률 {winrate:.2f}% ({games_played} 게임, {total_picked} 픽)")
+
+                champ_text = "\n".join(champ_details)
+                embed.add_field(name="Pick Most3", value=champ_text, inline=False)
+
+
+
     else:
         name = arr[0].lower()
         if name == "트롤트롤":
@@ -1109,6 +1169,22 @@ async def 전적(ctx, *, text=None):
             score = player_ranking[name]['score']
             rank =player_ranking[name]['rank']
             embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
+
+
+            # 모스트3
+            most3_champs = spreadSheet.get_most5_champions(nickname)
+            champ_details = []
+            for champ in most3_champs:
+                champ_name = champ['champion']
+                winrate = champ['winrate']
+                games_played = champ['games']
+                total_picked = champ['picked']
+                champ_details.append(f"{champ_name}: 승률 {winrate:.2f}% ({games_played} 게임, {total_picked} 픽)")
+
+            champ_text = "\n".join(champ_details)
+            embed.add_field(name="Most Pick", value=champ_text, inline=True)
+
+            #10전
             result = player_statistics_recent10(player_info[name])
             embed.add_field(
                 name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
