@@ -1141,7 +1141,7 @@ async def 전적(ctx, *, text=None):
                 result = player_statistics_recent5(player_info[name])
                 embed.add_field(
                     name=f"{name}\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
-                    value=result['resultsWithEmojis'], inline=True)
+                    value=result['resultsWithEmojis'], inline=False)
 
                 # 모스트3
                 most3_champs = spreadSheet.get_most_champions_for_nickname(name, 5)
@@ -1153,7 +1153,7 @@ async def 전적(ctx, *, text=None):
                     champ_details.append(f"{champ_name}: {total_picked}회, {winrate:.2f}%")
 
                 champ_text = "\n".join(champ_details)
-                embed.add_field(name="Most Pick", value=champ_text, inline=False)
+                embed.add_field(name="Most Pick", value=champ_text, inline=True)
 
 
 
