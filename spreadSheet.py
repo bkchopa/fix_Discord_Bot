@@ -1,6 +1,7 @@
 import gspread
 import os
 import json
+import re
 from google.oauth2.service_account import Credentials
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -27,9 +28,10 @@ rankingSheet = spreadsheet.worksheet("내전 순위")
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
 player_info = {}
 player_ranking = {}
-update_date = str()
+update_date = ""
 
 async def reload():
+    global update_date
     player_info.clear()
     player_ranking.clear()
 
@@ -78,22 +80,18 @@ async def reload():
     for item in ranked_data:
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
-    # 리스트를 역순으로 순회하면서 첫 번째로 나타나는 비지 않은 값을 찾습니다.
-
-    # A열의 데이터를 읽어옴
     values_in_column_A = rowDatasSheet.col_values(1)
-
-    # 각 팀의 마지막 게임 인덱스를 저장하는 딕셔너리 초기화
     team_indices = {}
 
-    # A열의 데이터를 역순으로 검사
+    pattern = re.compile(r'^\d+-\d+ \d+-\d+$')  # 해당 형식을 확인하는 정규 표현식
+
     for value in reversed(values_in_column_A):
-        if not value:  # 빈 값은 건너뜀
+        if not pattern.match(value):  # 형식에 맞지 않는 경우 건너뜀
             continue
 
         date, indices = value.split(" ")
-        month, day = date.split('-')  # 날짜 정보 분리
-        formatted_date = f"{month}월 {day}일"  # 변환된 형식
+        month, day = date.split("-")
+        formatted_date = f"{month}월 {day}일"
         team, game_index = indices.split("-")
 
         # 해당 팀의 마지막 게임 인덱스가 아직 저장되지 않았다면 저장
@@ -103,7 +101,4 @@ async def reload():
     # 저장된 데이터를 기반으로 원하는 문자열 형태로 변환
     result = " ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
 
-    global update_date
     update_date = f"{formatted_date} {result}까지 반영"
-
-
