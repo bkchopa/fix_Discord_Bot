@@ -1144,8 +1144,7 @@ async def 전적(ctx, *, text=None):
                     value=result['resultsWithEmojis'], inline=True)
 
                 # 모스트3
-                # 모스트3
-                most3_champs = spreadSheet.get_most5_champions_for_nickname(name)
+                most3_champs = spreadSheet.get_most_champions_for_nickname(name, 5)
                 champ_details = []
                 for champ in most3_champs:
                     champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근
@@ -1171,8 +1170,8 @@ async def 전적(ctx, *, text=None):
             embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
 
 
-            # 모스트3
-            most3_champs = spreadSheet.get_most5_champions_for_nickname(name)
+            # 모스트
+            most3_champs = spreadSheet.get_most_champions_for_nickname(name, 10)
             champ_details = []
             for champ in most3_champs:
                 champ_name = champ[0]  # 첫 번째 인덱스로 챔피언 이름에 접근

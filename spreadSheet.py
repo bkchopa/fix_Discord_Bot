@@ -31,9 +31,9 @@ player_ranking = {}
 update_date = ""
 top_champions = {}
 
-def get_most5_champions_for_nickname(nickname):
+def get_most_champions_for_nickname(nickname, count=5):
     champs = top_champions.get(nickname, [])
-    return champs
+    return champs[:count]
 
 async def reload():
     global update_date
@@ -153,9 +153,9 @@ async def reload():
     # 각 플레이어별로 챔피언의 승률 및 게임 수를 기준으로 정렬
     for nickname, champs_data in champion_data.items():
         top_champions[nickname] = {}
-        sorted_champs = sorted(champs_data.items(), key=lambda x: (-x[1]["wins"] / x[1]["games"], -x[1]["games"]))
+        sorted_champs = sorted(champs_data.items(), key=lambda x: (-x[1]["games"], -x[1]["wins"] / x[1]["games"]))
         top_champions[nickname] = [
-            (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"]) for champ in sorted_champs[:5]
+            (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"]) for champ in sorted_champs[:10]
         ]
 
 
