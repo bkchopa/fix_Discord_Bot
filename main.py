@@ -1145,7 +1145,7 @@ async def 전적(ctx, *, text=None):
 
                 # 모스트3
                 champ_details = []
-                most3_champs = spreadSheet.get_most5_champions(nickname)
+                most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
                 for champ in most3_champs:
                     champ_name = champ['champion']
                     winrate = champ['winrate']
@@ -1172,7 +1172,7 @@ async def 전적(ctx, *, text=None):
 
 
             # 모스트3
-            most3_champs = spreadSheet.get_most5_champions(nickname)
+            most3_champs = spreadSheet.get_most5_champions_for_nickname(nickname)
             champ_details = []
             for champ in most3_champs:
                 champ_name = champ['champion']

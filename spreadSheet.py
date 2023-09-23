@@ -155,12 +155,7 @@ async def reload():
             (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"], champ[1]["games"]) for champ in
             sorted_champs[:5]]
 
-    # 결과 출력
-    for nickname, champs in top_champions.items():
-        print(f"{nickname}:")
-        for champ, winrate, games, picks in champs:
-            print(f"  {champ} - 승률: {winrate * 100:.2f}% ({games} 게임, {picks} 픽)")
-        print()
+
 
 def get_most5_champions_for_nickname(nickname):
     champs = top_champions.get(nickname, [])
