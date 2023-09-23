@@ -255,7 +255,7 @@ async def on_ready():
         i += 1
 
 
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     resetList.start()
     counter.start()
 
@@ -263,7 +263,7 @@ async def on_ready():
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-    await ch.send("재시작전 대기인원을 불러옵니다...")
+    #await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content[:5] == "대기인원:":
             message_content = bot_msg.content
@@ -275,7 +275,7 @@ async def on_ready():
                 start = text.find(str(i) + '.')
                 end = text.find(str(i + 1) + '.')
                 if start == -1:
-                    await printlist(ch)
+                    #await printlist(ch)
                     return
 
                 if end == -1:
