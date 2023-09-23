@@ -1086,7 +1086,7 @@ async def 전적(ctx, *, text=None):
         except ValueError:
             arr = text.split(',')
 
-    embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}까지 반영", color=discord.Color.blue())
+    embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}", color=discord.Color.blue())
     if len(arr) > 1:
         for name in arr:
             name = name.lower()
