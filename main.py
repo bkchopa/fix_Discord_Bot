@@ -98,7 +98,7 @@ def player_statistics(player_data):
             f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 {win_rate_symbol} - {pos_win_rate:.2f}% 승률"
             f" - KDA: {pos_kda_str}")
 
-        return output
+    return output
 
 def player_statistics_recent10(player_data):
     recent_games = player_data[:10]
