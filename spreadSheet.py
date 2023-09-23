@@ -36,7 +36,7 @@ async def reload():
     all_data = rowDatasSheet.get_all_values()
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
-        if not row[15]:
+        if not row[16]:
             continue
 
         position = row[1]
@@ -55,9 +55,6 @@ async def reload():
         player_info[nickname].append(
             {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
              "assist": assist})
-
-        if not nickname or not assist:
-            continue
 
         position = row[9]
         nickname = row[10].lower()
@@ -83,14 +80,30 @@ async def reload():
 
     # 리스트를 역순으로 순회하면서 첫 번째로 나타나는 비지 않은 값을 찾습니다.
 
-    dates = rowDatasSheet.col_values(1)  # 여기서 'sheet'는 gspread에서의 Worksheet 객체라고 가정합니다.
-    print(f"Checking: {dates}")
+    # A열의 데이터를 읽어옴
+    values_in_column_A = rowDatasSheet.col_values(1)
+
+    # 각 팀의 마지막 게임 인덱스를 저장하는 딕셔너리 초기화
+    team_indices = {}
+
+    # A열의 데이터를 역순으로 검사
+    for value in reversed(values_in_column_A):
+        if not value:  # 빈 값은 건너뜀
+            continue
+
+        date, indices = value.split(" ")
+        month, day = date.split('-')  # 날짜 정보 분리
+        formatted_date = f"{month}월 {day}일"  # 변환된 형식
+        team, game_index = indices.split("-")
+
+        # 해당 팀의 마지막 게임 인덱스가 아직 저장되지 않았다면 저장
+        if team not in team_indices:
+            team_indices[team] = game_index
+
+    # 저장된 데이터를 기반으로 원하는 문자열 형태로 변환
+    result = " ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
+
     global update_date
-    for value in reversed(dates):
-        if value.strip():  # 값이 비어있지 않다면
-            update_date = value
-            break
-
-
+    update_date = f"{formatted_date} {result}까지 반영"
 
 
