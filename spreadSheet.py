@@ -4,6 +4,10 @@ import json
 import re
 from google.oauth2.service_account import Credentials
 from oauth2client.service_account import ServiceAccountCredentials
+import time
+
+MAX_RETRIES = 18
+RETRY_WAIT_TIME = 10  # 10 seconds
 
 # 인증
 scope = [
@@ -40,7 +44,15 @@ async def reload():
     player_info.clear()
     player_ranking.clear()
 
-    all_data = rowDatasSheet.get_all_values()
+    all_data = {}
+    for i in range(MAX_RETRIES):
+        try:
+            # 시트에 쓰기 시도
+            all_data = rowDatasSheet.get_all_values()
+        except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
+            time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
+            continue  # 다시 시도
+
     all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
     for row in all_data:
         if not row[16]:
@@ -78,7 +90,15 @@ async def reload():
              "assist": assist})
 
     #랭킹
-    all_values = rankingSheet.get_all_values()
+    all_values = {}
+    for i in range(MAX_RETRIES):
+        try:
+            # 시트에 쓰기 시도
+            all_values = rankingSheet.get_all_values()
+        except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
+            time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
+            continue  # 다시 시도
+
     # E열(등수), F열(닉네임), G열(점수)부터 시작하는 부분만 추출
     ranked_data = [{"nickname": row[5].lower(), "rank": row[4], "score": row[6]} for row in all_values[2:]]
     # 닉네임을 키로 하고, 등수와 점수를 값으로 하는 딕셔너리 생성
@@ -87,7 +107,15 @@ async def reload():
 
 
     #날짜
-    values_in_column_A = rowDatasSheet.col_values(1)
+    values_in_column_A={}
+    for i in range(MAX_RETRIES):
+        try:
+            # 시트에 쓰기 시도
+            values_in_column_A = rowDatasSheet.col_values(1)
+        except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
+            time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
+            continue  # 다시 시도
+
     team_indices = {}
     latest_date = None
 
