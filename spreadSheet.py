@@ -138,14 +138,20 @@ async def reload():
 
         # 해당 날짜의 모든 팀의 게임 인덱스 저장
         if date == latest_date:
-            team_indices[team] = game_index
+            if team not in team_indices:
+                team_indices[team] = []
+            team_indices[team].append(game_index)
         else:
             break  # 최신 날짜만 고려하므로 나머지는 처리할 필요 없음
 
     # 1, 2, 3 팀 중 기록되지 않은 팀의 게임 인덱스를 0-0으로 설정
     for team_num in ['1', '2', '3']:
         if team_num not in team_indices:
-            team_indices[team_num] = '0'
+            team_indices[team_num] = ['0']
+
+    # 가장 큰 게임 인덱스만 선택
+    for team, indices in team_indices.items():
+        team_indices[team] = max(indices)
 
     # 월-일을 월 일 형식으로 변경
     latest_date = latest_date.replace("-", "월 ") + "일"
