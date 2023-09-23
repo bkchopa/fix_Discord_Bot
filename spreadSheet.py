@@ -83,9 +83,10 @@ async def reload():
 
     # 리스트를 역순으로 순회하면서 첫 번째로 나타나는 비지 않은 값을 찾습니다.
 
-    all_values = spreadsheet.col_values(1)  # 여기서 'sheet'는 gspread에서의 Worksheet 객체라고 가정합니다.
+    dates = spreadsheet.col_values(1)  # 여기서 'sheet'는 gspread에서의 Worksheet 객체라고 가정합니다.
+    print(f"Checking: {dates}")
     global update_date
-    for value in reversed(all_values):
+    for value in reversed(dates):
         if value.strip():  # 값이 비어있지 않다면
             update_date = value
             break
