@@ -42,14 +42,6 @@ memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
 
-def determine_win_rate_emoji(win_rate):
-    if win_rate >= 60:
-        return "👍"  # 파랑색 이모지 (이를 적절한 이모지로 변경 가능)
-    elif win_rate <= 40:
-        return "👎"  # 빨간색 이모지 (이를 적절한 이모지로 변경 가능)
-    else:
-        return " "  # 중간 값은 아무런 이모지 없이
-
 def player_statistics(player_data):
     # Define positions in the order you want
     positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
@@ -92,13 +84,21 @@ def player_statistics(player_data):
         pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else float('inf') # 'Infinite' 대신에 float('inf')를 사용
 
         pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
-        pos_win_rate_emoji = determine_win_rate_emoji(pos_win_rate)
+        if pos_total_games >= 5:
+            if pos_win_rate >= 60:
+                win_rate_symbol = "👍"
+            elif pos_win_rate <= 40:
+                win_rate_symbol = "👎"
+            else:
+                win_rate_symbol = " "
+        else:
+            win_rate_symbol = ""
 
         output += (
-            f"\n{pos_win_rate_emoji} {position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
+            f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 {win_rate_symbol} - {pos_win_rate:.2f}% 승률"
             f" - KDA: {pos_kda_str}")
 
-    return output
+        return output
 
 def player_statistics_recent10(player_data):
     recent_games = player_data[:10]
@@ -134,7 +134,7 @@ def player_statistics_recent10(player_data):
         emoji = "🔵" if game['result'] == "승" else "🔴"
         result = game['result'].center(2)
         kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
-        results_with_emojis += f"{emoji} {champion} {result} {kda} \n"
+        results_with_emojis += f"{emoji} {champion} {kda} \n"
 
     return {
         "totalMatchCnt": len(recent_games),
