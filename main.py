@@ -42,6 +42,14 @@ memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
 
+def determine_win_rate_emoji(win_rate):
+    if win_rate >= 60:
+        return "🔵"  # 파랑색 이모지 (이를 적절한 이모지로 변경 가능)
+    elif win_rate <= 40:
+        return "🔴"  # 빨간색 이모지 (이를 적절한 이모지로 변경 가능)
+    else:
+        return ""  # 중간 값은 아무런 이모지 없이
+
 def player_statistics(player_data):
     # Define positions in the order you want
     positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
@@ -84,13 +92,15 @@ def player_statistics(player_data):
         pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else float('inf') # 'Infinite' 대신에 float('inf')를 사용
 
         pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
+        pos_win_rate_emoji = determine_win_rate_emoji(pos_win_rate)
 
-        output += (f"\n{position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
-                   f" - KDA: {pos_kda_str}")
+        output += (
+            f"\n{pos_win_rate_emoji} {position} 전적 - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
+            f" - KDA: {pos_kda_str}")
 
     return output
 
-def player_statistics_resent10(player_data):
+def player_statistics_recent10(player_data):
     recent_games = player_data[:10]
     recent_games = recent_games[::-1]
     returnTXT = ""
@@ -117,13 +127,42 @@ def player_statistics_resent10(player_data):
     else:
         streak = "(" + str(lossStreak) + "연패중 ㅜ)"
 
+    win_results = ""
+    loss_results = ""
+
+    for line in returnTXT.split("\n"):
+        if "승" in line:
+            win_results += line + "\n"
+        elif "패" in line:
+            loss_results += line + "\n"
+
     return {
-        "totalMatchCnt" : len(recent_games),
+        "totalMatchCnt": len(recent_games),
         "winCnt": winCnt,
         "lossCnt": lossCnt,
         "streak": streak,
-        "result": returnTXT
+        "winResults": win_results.strip(),
+        "lossResults": loss_results.strip()
     }
+
+async def send_game_results(ctx, statistics):
+    embed = discord.Embed(title="최근 10경기 결과", description=f"전체: {statistics['totalMatchCnt']}전, 승: {statistics['winCnt']}승, 패: {statistics['lossCnt']}패 {statistics['streak']}")
+
+    wins = ""
+    losses = ""
+
+    for line in statistics['result'].split("\n"):
+        if "승" in line:
+            wins += line + "\n"
+        elif "패" in line:
+            losses += line + "\n"
+
+    if wins:
+        embed.add_field(name="승", value=wins, inline=True)
+    if losses:
+        embed.add_field(name="패", value=losses, inline=True)
+
+    await ctx.send(embed=embed)
 
 async def printlist(ctx: discord.ext.commands.context.Context):
     if len(waitList) == 0:
@@ -1056,7 +1095,7 @@ async def 전적(ctx, *, text=None):
                 name = "포롤포롤"
 
             if name in player_info:
-                result = player_statistics_resent10(player_info[name])
+                result = player_statistics_recent10(player_info[name])
                 embed.add_field(
                     name=f"{name} \n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}", value=result['result'], inline=True)
     else:
@@ -1070,12 +1109,17 @@ async def 전적(ctx, *, text=None):
             score = player_ranking[name]['score']
             rank =player_ranking[name]['rank']
             embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
-            result = player_statistics_resent10(player_info[name])
-            embed.add_field(name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}", value=result['result'], inline=True)
+            result = player_statistics_recent10(player_info[name])
+
+            embed = discord.Embed(title="최근 10경기 결과")
+            embed.add_field(
+                name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
+                value="**승리**\n" + result['winResults'] + "\n\n**패배**\n" + result['lossResults'], inline=True)
 
     field_count = len(embed.fields)
     if field_count > 0:
         await ctx.send(embed=embed)
+
 
 
 
