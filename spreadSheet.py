@@ -43,6 +43,8 @@ async def reload():
     global update_date
     player_info.clear()
     player_ranking.clear()
+    top_champions.clear()
+    update_date =""
 
     all_data = {}
     for i in range(MAX_RETRIES):
