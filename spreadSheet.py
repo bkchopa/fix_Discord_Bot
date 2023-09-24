@@ -124,14 +124,11 @@ async def reload():
         if not value:  # 빈 값은 건너뜀
             continue
 
-        parts = value.split(" ")
-
-        # 9-2 1-8 형식의 데이터만 처리
-        if len(parts) != 2 or '-' not in parts[0] or '-' not in parts[1]:
+        match = re.match(r"(\d+-\d+) (\d+)-(\d+)", value)
+        if not match:  # 9-2 1-8 형식의 데이터만 처리
             continue
 
-        date, indices = parts
-        team, game_index = indices.split("-")
+        date, team, game_index = match.groups()
 
         # 최신 날짜 업데이트
         if not latest_date:
