@@ -44,7 +44,6 @@ async def reload():
     player_info.clear()
     player_ranking.clear()
     top_champions.clear()
-    update_date =""
 
     all_data = {}
     for i in range(MAX_RETRIES):
@@ -161,7 +160,6 @@ async def reload():
     # 저장된 데이터를 기반으로 원하는 문자열 형태로 변환
     result = ", ".join([f"{team}-{team_indices[team]}" for team in sorted(team_indices.keys())])
 
-    global update_date
     update_date = f"{latest_date} {result}까지 반영"
 
 
