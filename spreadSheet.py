@@ -149,7 +149,7 @@ async def reload():
 
     # 가장 큰 게임 인덱스만 선택
     for team, indices in team_indices.items():
-        team_indices[team] = max(indices)
+        team_indices[team] = max(indices, key=int)  # 숫자로 변환해서 비교
 
     # 월-일을 월 일 형식으로 변경
     latest_date = latest_date.replace("-", "월 ") + "일"
