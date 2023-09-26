@@ -263,7 +263,7 @@ async def on_ready():
         i += 1
 
 
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     if not resetList.is_running():
         resetList.start()
 
@@ -273,7 +273,7 @@ async def on_ready():
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-    await ch.send("재시작전 대기인원을 불러옵니다...")
+    #await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content[:5] == "대기인원:":
             message_content = bot_msg.content
@@ -285,7 +285,7 @@ async def on_ready():
                 start = text.find(str(i) + '.')
                 end = text.find(str(i + 1) + '.')
                 if start == -1:
-                    await printlist(ch)
+                    #await printlist(ch)
                     return
 
                 if end == -1:
@@ -1017,7 +1017,7 @@ async def 경매도움말(ctx):
 @bot.command(aliases=["멘션","ㅁㅅ"])
 async def 맨션(ctx, index, *, text=None):
     
-    if len(index) > 1 and (index[1] == '~' or index[2] == '~'):
+    if '~' in index:
         arr = index.split('~')
         string_int1 = int(arr[0])
         string_int2 = int(arr[1])
@@ -1047,11 +1047,14 @@ async def 맨션(ctx, index, *, text=None):
         await ctx.send(retStr)
         return
     else:
-        if len(index) == 1:
+        if ',' not in index:
             arr = index
         else:
             arr = index.split(',')
             arr.sort(key=int)
+
+        print(arr)
+        print(text)
 
         retStr = ""
 
