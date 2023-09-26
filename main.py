@@ -41,7 +41,15 @@ memberListDic = defaultdict(list)
 memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
-
+@tasks.loop(hours=1)
+async def resetList():
+    await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
+    hour = datetime.datetime.now().hour
+    if hour is 22:
+        ch = bot.get_channel(890160605246414848)
+        await ch.send("명단 리셋합니다!")
+        waitList.clear()
+        await printlist(ch)
 def player_statistics(player_data):
     # Define positions in the order you want
     positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
@@ -257,7 +265,7 @@ async def on_ready():
 
     await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     if not resetList.is_running():
-        await resetList.start()
+        resetList.start()
 
     counter.start()
 
@@ -613,15 +621,7 @@ async def 복구(ctx, *, text=None):
 
 
 
-@tasks.loop(hours=1)
-async def resetList():
-    await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
-    hour = datetime.datetime.now().hour
-    if hour is 22:
-        ch = bot.get_channel(890160605246414848)
-        await ch.send("명단 리셋합니다!")
-        waitList.clear()
-        await printlist(ch)
+
 
 
 @bot.command()
