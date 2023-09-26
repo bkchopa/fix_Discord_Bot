@@ -1015,7 +1015,14 @@ async def 경매도움말(ctx):
     await ctx.send(retStr)
 
 @bot.command(aliases=["멘션","ㅁㅅ"])
-async def 맨션(ctx, index, *, text=None):
+async def 맨션(ctx, *args, text=None):
+
+    if not args:
+        await ctx.send('번호를 입력해주세요.')
+        return
+
+    # args를 하나의 문자열로 합칩니다.
+    index = ''.join(args)
     
     if '~' in index:
         arr = index.split('~')
