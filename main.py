@@ -1016,7 +1016,7 @@ async def 경매도움말(ctx):
 
 @bot.command(aliases=["멘션","ㅁㅅ"])
 async def 맨션(ctx, index, *, text=None):
-    arr = list()
+    arr ={}
     if "~" in index:
         arr = index.split('~')
         string_int1 = int(arr[0])
