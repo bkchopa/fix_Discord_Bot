@@ -283,7 +283,7 @@ async def on_ready():
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
             await printlist(ch)
-            return
+            break
 
     if not resetList.is_running():
         resetList.start()
