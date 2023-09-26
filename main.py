@@ -9,7 +9,7 @@ from collections import defaultdict
 import spreadSheet
 from spreadSheet import player_info
 from spreadSheet import player_ranking
-
+import re
 
 intents = discord.Intents.default()
 intents.members = True
@@ -275,27 +275,14 @@ async def on_ready():
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
     await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
-        if bot_msg.content[:5] == "대기인원:":
-            message_content = bot_msg.content
-            text = message_content.replace("대기인원:", "").strip()
-            start = int()
-            end = int()
-            i = 1
-            while True:
-                start = text.find(str(i) + '.')
-                end = text.find(str(i + 1) + '.')
-                if start == -1:
-                    await printlist(ch)
-                    return
+        if bot_msg.content.startswith("대기인원:"):
+            text = bot_msg.content.replace("대기인원:", "").strip()
+            # 정규 표현식 패턴으로 번호와 뒤이어 오는 문자열(닉네임)을 찾습니다.
+            pattern = re.compile(r'\d+\.\s+([^0-9]+)')
+            matches = pattern.findall(text)
 
-                if end == -1:
-                    end = len(text) + 1
-
-                nickName = text[start + 3:end - 1]
-                waitList.append(nickName)
-                i += 1
-            return
-
+            for match in matches:
+                waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
 
 
@@ -1014,7 +1001,7 @@ async def 경매도움말(ctx):
 
     await ctx.send(retStr)
 
-@bot.command(aliases=["멘션","ㅁㅅ"])
+@bot.command(aliases=["멘션","ㅁㅅ","at"])
 async def 맨션(ctx, index, *, text=None):
     
     if len(index) > 1 and (index[1] == '~' or index[2] == '~'):
