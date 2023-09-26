@@ -216,9 +216,6 @@ async def send_game_results(ctx, statistics):
     await ctx.send(embed=embed)
 
 async def printlist(ctx: discord.ext.commands.context.Context):
-    if len(waitList) == 0:
-        await ctx.send('현재 대기 없음')
-        return
     ret = "대기인원: "
     idx = 1
     for name in waitList:
@@ -228,6 +225,9 @@ async def printlist(ctx: discord.ext.commands.context.Context):
         ret += name
         ret += " "
     await ctx.send(ret)
+
+    if len(waitList) == 0:
+        await ctx.send('현재 대기 없음')
 
 
 async def not_here(ctx: discord.ext.commands.context.Context):
@@ -284,6 +284,8 @@ async def on_ready():
             for match in matches:
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
+        await printlist(ch)
+        return
 
 
 
