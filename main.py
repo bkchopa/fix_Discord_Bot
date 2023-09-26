@@ -1037,7 +1037,7 @@ async def 맨션(ctx, index, *, text=None):
         return
     else:
         if ',' not in index:
-            arr.appen(index)
+            arr.append(index)
         else:
             arr = index.split(',')
             arr.sort(key=int)
