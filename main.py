@@ -50,6 +50,7 @@ async def resetList():
         await ch.send("명단 리셋합니다!")
         waitList.clear()
         await printlist(ch)
+
 def player_statistics(player_data):
     # Define positions in the order you want
     positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
@@ -284,8 +285,9 @@ async def on_ready():
             for match in matches:
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
-        await printlist(ch)
-        return
+            await printlist(ch)
+            return
+
 
 
 
