@@ -1004,7 +1004,7 @@ async def 경매도움말(ctx):
 @bot.command(aliases=["멘션","ㅁㅅ","at"])
 async def 맨션(ctx, index, *, text=None):
     
-    if len(index) > 1 and (index[1] == '~' or index[2] == '~'):
+    if '~' in index:
         arr = index.split('~')
         string_int1 = int(arr[0])
         string_int2 = int(arr[1])
@@ -1034,7 +1034,7 @@ async def 맨션(ctx, index, *, text=None):
         await ctx.send(retStr)
         return
     else:
-        if len(index) == 1:
+        if ',' not in index:
             arr = index
         else:
             arr = index.split(',')
