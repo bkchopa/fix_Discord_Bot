@@ -1015,9 +1015,16 @@ async def 경매도움말(ctx):
     await ctx.send(retStr)
 
 @bot.command(aliases=["멘션","ㅁㅅ"])
-async def 맨션(ctx, index, *, text=None):
+async def 맨션(ctx, *args, text=None):
+
+    if not args:
+        await ctx.send('번호를 입력해주세요.')
+        return
+
+    # args를 하나의 문자열로 합칩니다.
+    index = ''.join(args)
     
-    if "~" in index:
+    if len(index) > 1 and (index[1] == '~' or index[2] == '~'):
         arr = index.split('~')
         string_int1 = int(arr[0])
         string_int2 = int(arr[1])
@@ -1047,9 +1054,9 @@ async def 맨션(ctx, index, *, text=None):
         await ctx.send(retStr)
         return
     else:
-        try:
+        if len(index) == 1:
             arr = index
-        except ValueError:
+        else:
             arr = index.split(',')
             arr.sort(key=int)
 
