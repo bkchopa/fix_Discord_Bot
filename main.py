@@ -1028,7 +1028,7 @@ async def 맨션(ctx, index, *, text=None):
 @bot.command()
 async def 전적(ctx, *, text=None):
     arr = list()
-
+    print("전적 검색")
     if text is None:
         arr.clear()
         nickname = ctx.message.author.nick
@@ -1072,7 +1072,7 @@ async def 전적(ctx, *, text=None):
 
         except ValueError:
             arr = text.split(',')
-
+    print("전적 검색2")
     embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}", color=discord.Color.blue())
     if len(arr) > 1:
         for name in arr:
@@ -1102,6 +1102,7 @@ async def 전적(ctx, *, text=None):
 
 
     else:
+        print("전적 검색3")
         name = arr[0].lower()
         if name == "트롤트롤":
             name = "포롤포롤"
@@ -1114,7 +1115,7 @@ async def 전적(ctx, *, text=None):
                 rank =player_ranking[name]['rank']
                 embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
 
-
+            print("전적 검색4")
             # 모스트
             most3_champs = spreadSheet.get_most_champions_for_nickname(name, 10)
             champ_details = []
@@ -1126,13 +1127,13 @@ async def 전적(ctx, *, text=None):
 
             champ_text = "\n".join(champ_details)
             embed.add_field(name="Most Pick", value=champ_text, inline=True)
-
+            print("전적 검색5")
             #10전
             result = player_statistics_recent10(player_info[name])
             embed.add_field(
                 name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
                 value=result['resultsWithEmojis'], inline=True)
-
+    print("전적 검색6")
     field_count = len(embed.fields)
     if field_count > 0:
         await ctx.send(embed=embed)
