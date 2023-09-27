@@ -1009,75 +1009,51 @@ async def 경매도움말(ctx):
 
     await ctx.send(retStr)
 
-@bot.command(aliases=["멘션","ㅁㅅ","at"])
-async def 맨션(ctx, index, *, text=None):
-    arr =list()
-    if '~' in index:
-        arr = index.split('~')
-        string_int1 = int(arr[0])
-        string_int2 = int(arr[1])
-        string_int1 -= 1
-        string_int2 -= 1
-        if (string_int1 < 0 or string_int1 >= len(waitList)) or (string_int2 < 0 or string_int2 >= len(waitList)):
-            await ctx.send('잘못된 번호')
-            return
-
-        retStr = ""
-        while string_int1 <= string_int2:
-            waiting = waitList[string_int1]
-            for member in ctx.guild.members:
-                if member.nick is None:
-                    continue
-
-                nickname = member.nick
-                arr = nickname.split('/')
-                realNick = arr[0]
-                if waiting == realNick:
-                    retStr += "<@{}> ".format(member.id)
-
-            string_int1 += 1
-
-        if text is not None:
-            retStr += text
-        await ctx.send(retStr)
-        return
+def parse_indices(index_str):
+    if '~' in index_str:
+        start, end = map(int, index_str.split('~'))
+        return list(range(start - 1, end))
+    elif ',' in index_str:
+        return [int(i) - 1 for i in index_str.split(',')]
     else:
-        if ',' not in index:
-            arr.append(index)
-        else:
-            arr = index.split(',')
-            arr.sort(key=int)
+        return [int(index_str) - 1]
 
-        retStr = ""
 
-        for num in arr:
-            try:
-                string_int = int(num)
-                string_int -= 1
-                if string_int < 0 or string_int >= len(waitList):
-                    await ctx.send('없는 번호')
-                    continue
-            except ValueError:
-                continue
+def generate_mentions(members, indices):
+    mentions = []
 
-            waiting = waitList[string_int]
-
-            for member in ctx.guild.members:
-                if member.nick is None:
-                    continue
-
-                nickname = member.nick
-                arr = nickname.split('/')
-                realNick = arr[0]
+    for idx in indices:
+        if idx < 0 or idx >= len(waitList):
+            continue
+        waiting = waitList[idx]
+        for member in members:
+            if member.nick:
+                realNick = member.nick.split('/')[0]
                 if waiting == realNick:
-                    retStr += "<@{}> ".format(member.id)
+                    mentions.append(f"<@{member.id}>")
+                    break
+    return ' '.join(mentions)
+def process_mention_command(ctx, index_str, additional_text=None):
+    indices = parse_indices(index_str)
+    if not indices:
+        raise ValueError("잘못된 번호 입력")
 
-        if text is not None:
-            retStr += text
+    mention_str = generate_mentions(ctx.guild.members, indices)
+    if not mention_str:
+        raise ValueError("멘션할 사용자를 찾을 수 없습니다.")
 
-        await ctx.send(retStr)
+    if additional_text:
+        mention_str += " " + additional_text
 
+    return mention_str
 
+@bot.command(aliases=["멘션", "ㅁㅅ", "at"])
+async def 맨션(ctx, index, *, text=None):
+    try:
+        mention_str = process_mention_command(ctx, index, text)
+        await ctx.send(mention_str)
+    except ValueError as e:
+        await ctx.send(str(e))
 
 @bot.command()
 async def 전적(ctx, *, text=None):
@@ -1163,9 +1139,10 @@ async def 전적(ctx, *, text=None):
         if name in player_info:
             # 워크시트 선택
             output = player_statistics(player_info[name])
-            score = player_ranking[name]['score']
-            rank =player_ranking[name]['rank']
-            embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
+            if '까망쵸파 봇' in player_ranking:
+                score = player_ranking[name]['score']
+                rank =player_ranking[name]['rank']
+                embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
 
 
             # 모스트
