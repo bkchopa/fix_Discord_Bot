@@ -264,14 +264,14 @@ async def on_ready():
         i += 1
 
 
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
 
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-    await ch.send("재시작전 대기인원을 불러옵니다...")
+    #await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
@@ -282,53 +282,40 @@ async def on_ready():
             for match in matches:
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
-            await printlist(ch)
+            #await printlist(ch)
             break
 
     if not resetList.is_running():
         resetList.start()
 
-    counter.start()
+    #counter.start()
 
 
 
 
 
-@bot.command()
-async def 막판(ctx, team, count, *, text=None):
-    if team[1] != '팀':
-        await ctx.send('잘못된 입력')
-        return
-    if count[1] != '명':
-        await ctx.send('잘못된 입력')
-        return
-
-    team_int = 0
-    count_int = 0
-
+async def update_macpan_list(ctx, team: str, count: str):
+    # 팀과 인원수에서 숫자 부분만 추출
     try:
         team_int = int(team[0])
-    except ValueError:
-        await ctx.send('잘못된 입력')
-        return
-
-    try:
         count_int = int(count[0])
     except ValueError:
         await ctx.send('잘못된 입력')
         return
 
+    # 입력된 팀 번호와 인원수 범위 검사
+    if team_int not in [1, 2, 3] or count_int < 0:
+        await ctx.send('잘못된 입력')
+        return
+
     macpanList[team_int] = count_int
 
-    retStr = "막판  "
-    retStr += "1팀 "
-    retStr += str(macpanList[1]) + "명   "
-    retStr += "2팀 "
-    retStr += str(macpanList[2]) + "명    "
-    retStr += "3팀 "
-    retStr += str(macpanList[3]) + "명    "
-
+    retStr = f"막판  1팀 {macpanList[1]}명   2팀 {macpanList[2]}명   3팀 {macpanList[3]}명"
     await bot.change_presence(activity=discord.Game(retStr))
+
+@bot.command()
+async def 막판(ctx, team: str, count: str, *, text=None):
+    await update_macpan_list(ctx, team, count)
 
 
 
@@ -574,10 +561,24 @@ async def 랜뽑(ctx, text):
     await ctx.send('당첨자는~ ' + arr[ranNum] + '!')
 
 
-@bot.command(aliases=["1팀", "2팀", "3팀", "4팀"])
-async def 막판방지(ctx, *, text):
-    await ctx.send('!막판 *팀 *명 입니다 선생님')
+@bot.command(name="1팀")
+async def team1_command(ctx, *, args):
+    await process_alternate_format(ctx, "1팀", args)
 
+@bot.command(name="2팀")
+async def team2_command(ctx, *, args):
+    await process_alternate_format(ctx, "2팀", args)
+
+@bot.command(name="3팀")
+async def team3_command(ctx, *, args):
+    await process_alternate_format(ctx, "3팀", args)
+
+async def process_alternate_format(ctx, team: str, args: str):
+    parts = args.split()
+    if len(parts) < 2 or parts[0] != "막판":
+        await ctx.send('잘못된 입력')
+        return
+    await update_macpan_list(ctx, team, parts[1])
 
 @bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
