@@ -378,89 +378,59 @@ async def 양보(ctx, * ,text):
 
     await changetitle(ctx)
 
-@bot.command(aliases=["취","ㅊㅅ","ct","CT"])
+@bot.command(aliases=["취", "ㅊㅅ", "ct", "CT", "부취", "범취"])
 async def 취소(ctx, *, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
         return
+
+    # 닉네임 기반 제거
     if text is None:
-        nickname = ctx.message.author.nick
-        arr = nickname.split('/')
-        if arr[0] in waitList:
-            waitList.remove(arr[0])
-            print('취소 :')
-            print(arr[0])
-
+        nickname = ctx.message.author.nick.split('/')[0]
+        if nickname in waitList:
+            waitList.remove(nickname)
         await printlist(ctx)
         return
-    try:
-        string_int = int(text)
-        string_int -= 1
-        if string_int < 0 or string_int >= len(waitList):
-            await ctx.send('없는 번호')
-            return
-        print('취소 :')
-        print(waitList[string_int])
-        del waitList[string_int]
 
+    # 특정 인덱스 제거
+    try:
+        index = int(text) - 1
+        if 0 <= index < len(waitList):
+            del waitList[index]
         await printlist(ctx)
-    except ValueError:
-        if text in waitList:
-            print('취소 :')
-            print(text)
-            waitList.remove(text)
-        else:
-            await ctx.send('없는 닉네임')
-
-
-
-@bot.command(aliases=["부취"])
-async def 부분취소(ctx, text):
-    arr = text.split(',')
-    count = 0
-    arr.sort(key=int)
-    print('부분취소 :')
-    print(text)
-    for num in arr:
-        try:
-            string_int = int(num)
-            string_int -= 1
-            string_int -= count
-            if string_int < 0 or string_int >= len(waitList):
-                await ctx.send('없는 번호')
-                return
-            del waitList[string_int]
-            count += 1
-        except ValueError:
-            continue
-    await printlist(ctx)
-    await changetitle(ctx)
-
-
-@bot.command(aliases=["범취"])
-async def 범위취소(ctx, text):
-    arr = text.split('~')
-    print('범위취소 :')
-    print(text)
-    count = 0
-    try:
-        string_int1 = int(arr[0])
-        string_int2 = int(arr[1])
-        string_int1 -= 1
-        string_int2 -= 1
-        if (string_int1 < 0 or string_int1 >= len(waitList)) or (string_int2 < 0 or string_int2 >= len(waitList)):
-            await ctx.send('잘못된 번호')
-            return
-        while string_int1 <= string_int2:
-            temp = string_int1 - count
-            del waitList[temp]
-            string_int1 += 1
-            count += 1
-    except ValueError:
-        await ctx.send('잘못된 입력')
         return
-    await printlist(ctx)
-    await changetitle(ctx)
+    except ValueError:
+        pass  # 숫자 변환에 실패하면 계속 진행
+
+    # 여러 인덱스 제거
+    if ',' in text:
+        indices = sorted([int(i) - 1 for i in text.split(',') if i.isdigit()], reverse=True)
+        for index in indices:
+            if 0 <= index < len(waitList):
+                del waitList[index]
+        await printlist(ctx)
+        return
+
+    # 범위 기반 제거
+    if '~' in text:
+        start, _, end = text.partition('~')
+        start_idx = int(start) - 1
+        end_idx = int(end) - 1
+        for index in range(end_idx, start_idx - 1, -1):  # 역순으로 삭제 (인덱스 오류 방지)
+            if 0 <= index < len(waitList):
+                del waitList[index]
+        await printlist(ctx)
+        return
+
+    # 닉네임 기반 제거
+    if text in waitList:
+        waitList.remove(text)
+        await printlist(ctx)
+        return
+
+    # 그 외의 경우
+    await ctx.send('잘못된 입력')
+
 
 
 @bot.command(aliases=["ㄷㄱ","er","ER"])
