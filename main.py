@@ -300,9 +300,7 @@ team_mentions = {"1팀": 0, "2팀": 0, "3팀": 0}
 async def update_macpan_list(team, count):
     global previously_mentioned
 
-    # 해당 팀의 막판 인원 업데이트
-    macpanList[team] = int(count)
-
+    macpanList[team] = count
     # 총 막판 인원 계산
     total_mentioned = sum(macpanList.values())
 
@@ -625,7 +623,8 @@ async def process_alternate_format(ctx, team: str, args: str):
         await ctx.send('잘못된 입력')
         return
 
-    await update_macpan_list(team, parts[1])
+    count_int = int(parts[1].split("명")[0])
+    await update_macpan_list(team, count_int)  # "명" 문자열 기준으로 숫자만 추출)
     #이거 안될거 같음
     return
     #mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
