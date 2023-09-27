@@ -51,9 +51,9 @@ team2_list = [890161063130177536, 890161039793086465, 921703036294926366]
 team3_list = [920998312998502451, 921018416473718834, 921703123221884969]
 
 team_lists = {
-    '1팀': team1_list,
-    '2팀': team2_list,
-    '3팀': team3_list
+    "1팀": {"ids": team1_list, "alert_sent": False},
+    "2팀": {"ids": team2_list, "alert_sent": False},
+    "3팀": {"ids": team3_list, "alert_sent": False},
 }
 
 remainMileageDic = dict()
@@ -61,6 +61,12 @@ memberListDic = defaultdict(list)
 memberList = list()
 missedMemberList = list()
 currentAuctionMember = str()
+
+
+
+async def sendToChannel(message: str, id: int = 890160605246414848):
+    channel = bot.get_channel(id)
+    await channel.send(message)
 @tasks.loop(hours=1)
 async def resetList():
     current_yymm = current_time.strftime('%y%m')
@@ -1204,6 +1210,15 @@ async def 전적갱신(ctx):
         await ctx.send('전적 갱신이 완료되었습니다.')
     except Exception as e:
         await ctx.send(f'오류가 발생했습니다: {str(e)}')
+
+
+async def get_user_count(channel_id):
+    channel = bot.get_channel(channel_id)
+    if channel:
+        return len(channel.members)
+    return 0
+
+
 async def get_total_user_count_in_channels(channel_ids):
     total_user_count = 0
     for channel_id in channel_ids:
@@ -1212,17 +1227,34 @@ async def get_total_user_count_in_channels(channel_ids):
             total_user_count += len(channel.members)
     return total_user_count
 
+
 @bot.event
 async def on_voice_state_update(member, before, after):
     # 나갈 때
     if before.channel:
-        for team_name, channel_ids in team_lists.items():
-            if before.channel.id in channel_ids:
-                total_user_count = await get_total_user_count_in_channels(channel_ids)
-                print(total_user_count)
-                if total_user_count <= 4:
-                    await update_macpan_list(team_name, '0명', ctx=None)
+        for team_name, team_data in team_lists.items():
+            if before.channel.id in team_data["ids"]:
+                total_user_count_in_team = await get_total_user_count_in_channels(team_data["ids"][1:])
+                total_user_count_in_lobby = await get_total_user_count_in_channels([team_data["ids"][0]])
+
+                total_user_count = total_user_count_in_team + total_user_count_in_lobby
+
+                # 로비 인원이 팀룸의 인원보다 많은 경우
+                if total_user_count_in_lobby > total_user_count_in_team:
+                    await update_macpan_list(team_name, '0명')
+                    team_data["alert_sent"] = False  # Reset the flag when lobby has more members
+                # 전체 인원(로비 + 팀룸)이 4명 이하로 남아 있는 경우
+                elif total_user_count <= 4:
+                    await update_macpan_list(team_name, '0명')
+                    team_data["alert_sent"] = False  # Reset the flag when total user count is less than or equal to 4
+                # 룸의 인원이 로비의 인원보다 많고, 이전에 알림을 보낸 적이 없는 경우
+                elif total_user_count_in_team > total_user_count_in_lobby and not team_data["alert_sent"]:
+                    # Get a random member from the room and send a mention
+                    room_channel = bot.get_channel(team_data["ids"][1])  # Assuming id[1] is a team room
+                    if room_channel and room_channel.members:
+                        member_to_mention = random.choice(room_channel.members)
+                        await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요")
+                        team_data["alert_sent"] = True  # Set the flag to True after sending the alert
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
-
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
