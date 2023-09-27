@@ -1139,7 +1139,7 @@ async def 전적(ctx, *, text=None):
         if name in player_info:
             # 워크시트 선택
             output = player_statistics(player_info[name])
-            if '까망쵸파 봇' in player_ranking:
+            if name in player_ranking:
                 score = player_ranking[name]['score']
                 rank =player_ranking[name]['rank']
                 embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
