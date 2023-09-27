@@ -435,7 +435,7 @@ async def 취소(ctx, *, text=None):
     if index_to_remove is not None and index_to_remove < previously_mentioned and previously_mentioned < len(waitList):
         next_user = waitList[previously_mentioned]
         mention_str = process_mention_command(ctx, str(previously_mentioned + 1))
-        await ctx.send(f"{next_user} 대기해주세요. {mention_str}")
+        await ctx.send(f"{next_user}님 차례입니다. {mention_str}")
 
     # 이제 사용자를 waitList에서 제거
     if text is None:
@@ -612,13 +612,9 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    start_index, end_index = update_macpan_list(team, parts[1])
+    start_index, end_index = update_macpan_list(team, parts[1])  # await 제거
     mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
-
-    # 대기 메시지 추가
-    message_tail = f" {team} 팀 대기해 주세요."
-
-    await ctx.send(mention_str + message_tail)
+    await ctx.send(mention_str)
 
 @bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
