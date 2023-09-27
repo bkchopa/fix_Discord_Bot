@@ -297,53 +297,60 @@ previously_mentioned = 0
 team_mentions = {"1팀": 0, "2팀": 0, "3팀": 0}
 
 
-def update_macpan_list(team, count):
+async def update_macpan_list(team, count):
     global previously_mentioned
 
-    # 지정된 수의 사용자에 대한 인덱스 문자열 생성
-    try:
-        count_int = int(count.split("명")[0])
-    except ValueError:
-        raise ValueError('잘못된 입력')
+    # 해당 팀의 막판 인원 업데이트
+    macpanList[team] = count
 
-    # 이미 멘션한 사용자들 중 해당 팀의 사용자 수를 제외
-    previously_mentioned -= team_mentions[team]
+    # 총 막판 인원 계산
+    total_mentioned = sum(macpanList.values())
 
     # 멘션할 사용자의 시작 인덱스 계산
     start_index = previously_mentioned
-    end_index = start_index + count_int
+    end_index = start_index + (total_mentioned - previously_mentioned)
 
-    # 만약 요청된 사용자 수가 waitList의 현재 사용자 수보다 많으면, 가능한 모든 사용자에게만 멘션
+    # 요청된 사용자 수가 waitList의 현재 사용자 수보다 많으면, 가능한 모든 사용자에게만 멘션
     if end_index > len(waitList):
         end_index = len(waitList)
 
-    # 이전에 멘션한 사용자 수와 팀 별 멘션한 사용자 수 업데이트
-    previously_mentioned += end_index - start_index
-    team_mentions[team] = end_index - start_index
+    previously_mentioned = total_mentioned
+
+    # 막판 상태 업데이트 메시지 생성
+    status_msg = "막판 "
+    for team, cnt in macpanList.items():
+        status_msg += f"{team} {cnt}명  "
+
+    # 봇의 상태 메시지 업데이트
+    await bot.change_presence(activity=discord.Game(name=status_msg))
 
     return start_index, end_index
 
 
 @bot.command()
 async def 막판(ctx, team, count):
-    # 팀 이름에서 숫자만 추출
-    team_num = ''.join(filter(str.isdigit, team))
+    async def 막판(ctx, team, count):
+        # 팀 이름에서 숫자만 추출
+        team_num = ''.join(filter(str.isdigit, team))
 
-    if team_num not in ['1', '2', '3']:  # 1팀, 2팀, 3팀만 허용
-        await ctx.send('잘못된 팀 입력입니다.')
-        return
+        if team_num not in ['1', '2', '3']:  # 1팀, 2팀, 3팀만 허용
+            await ctx.send('잘못된 팀 입력입니다.')
+            return
 
-    try:
-        count_int = int(count.split("명")[0])  # "명" 문자열 기준으로 숫자만 추출
-    except ValueError:
-        await ctx.send('잘못된 인원 입력입니다.')
-        return
+        try:
+            count_int = int(count.split("명")[0])  # "명" 문자열 기준으로 숫자만 추출
+        except ValueError:
+            await ctx.send('잘못된 인원 입력입니다.')
+            return
 
-    # 막판 상태 업데이트
-    start_index, end_index = update_macpan_list(team_num, count)
-    mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
+        # 막판 상태 업데이트
+        start_index, end_index = await update_macpan_list(team, count_int)
 
-    await ctx.send(mention_str)
+    #이건 안되겠다
+    return
+    #mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
+
+    #await ctx.send(mention_str)
 
 @bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz","CZ","Cz","cZ"])
 async def 체크(ctx, *, text=None):
@@ -431,11 +438,6 @@ async def 취소(ctx, *, text=None):
             else:
                 await ctx.send('없는 닉네임')
 
-    # 사용자가 previously_mentioned 이전에 있고, previously_mentioned에 해당하는 사용자가 있다면 멘션 보내기
-    if index_to_remove is not None and index_to_remove < previously_mentioned and previously_mentioned < len(waitList):
-        next_user = waitList[previously_mentioned]
-        mention_str = process_mention_command(ctx, str(previously_mentioned + 1))
-        await ctx.send(f"{next_user} 대기해주세요. {mention_str}")
 
     # 이제 사용자를 waitList에서 제거
     if text is None:
@@ -445,6 +447,16 @@ async def 취소(ctx, *, text=None):
     else:
         if isinstance(index_to_remove, int):
             del waitList[index_to_remove]
+
+    #이거 안될거 같음
+    return
+    # 사용자가 previously_mentioned 이전에 있고, previously_mentioned에 해당하는 사용자가 있다면 멘션 보내기
+    if index_to_remove is not None and index_to_remove < previously_mentioned and previously_mentioned < len(waitList):
+        next_user = waitList[previously_mentioned]
+        mention_str = process_mention_command(ctx, str(previously_mentioned + 1))
+        await ctx.send(f"{next_user} 대기해주세요. {mention_str}")
+
+
 
     await printlist(ctx)
 @bot.command(aliases=["부취"])
@@ -612,7 +624,9 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    start_index, end_index = update_macpan_list(team, parts[1])
+    start_index, end_index = await update_macpan_list(team, parts[1])
+    #이거 안될거 같음
+    return
     mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
 
     # 대기 메시지 추가
