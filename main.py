@@ -612,7 +612,7 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    start_index, end_index = await update_macpan_list(team, parts[1])
+    start_index, end_index = update_macpan_list(team, parts[1])  # await 제거
     mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
     await ctx.send(mention_str)
 
