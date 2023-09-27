@@ -313,13 +313,12 @@ def update_macpan_list(team, count):
     start_index = previously_mentioned
     end_index = start_index + count_int
 
-    # 만약 요청된 사용자 수가 waitList의 현재 사용자 수보다 많으면, 가능한 모든 사용자에게만 멘션
     if end_index > len(waitList):
-        end_index = len(waitList)
+        raise ValueError("대기 목록에 지정된 수보다 적은 사용자가 있습니다.")
 
     # 이전에 멘션한 사용자 수와 팀 별 멘션한 사용자 수 업데이트
-    previously_mentioned += end_index - start_index
-    team_mentions[team] = end_index - start_index
+    previously_mentioned += count_int
+    team_mentions[team] = count_int
 
     return start_index, end_index
 
@@ -335,7 +334,7 @@ async def 막판(ctx, team: str, count: str, *, text=None):
     index_str = "{}~{}".format(start_index + 1, end_index)
     try:
         mention_str = process_mention_command(ctx, index_str, text)
-        await ctx.send(mention_str + f"{team}팀 대기해주세요")
+        await ctx.send(mention_str)
     except ValueError as e:
         await ctx.send(str(e))
 
@@ -405,50 +404,43 @@ async def 양보(ctx, * ,text):
     waitList.insert(0, text)
 
     await changetitle(ctx)
-@bot.command(aliases=["취", "ㅊㅅ", "ct", "CT"])
+
+@bot.command(aliases=["취","ㅊㅅ","ct","CT"])
 async def 취소(ctx, *, text=None):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
         return
-
-    index_to_remove = None
-
     if text is None:
         nickname = ctx.message.author.nick
         arr = nickname.split('/')
         if arr[0] in waitList:
-            index_to_remove = waitList.index(arr[0])
             waitList.remove(arr[0])
             print('취소 :')
             print(arr[0])
-    else:
-        try:
-            string_int = int(text)
-            string_int -= 1
-            if 0 <= string_int < len(waitList):
-                index_to_remove = string_int
-                print('취소 :')
-                print(waitList[string_int])
-                del waitList[string_int]
-            else:
-                await ctx.send('없는 번호')
-                return
-        except ValueError:
-            if text in waitList:
-                index_to_remove = waitList.index(text)
-                print('취소 :')
-                print(text)
-                waitList.remove(text)
-            else:
-                await ctx.send('없는 닉네임')
 
-    # 사용자가 previously_mentioned 이전에 있고, previously_mentioned에 해당하는 사용자가 있다면 멘션 보내기
-    if index_to_remove is not None and index_to_remove < previously_mentioned and previously_mentioned < len(waitList):
-        next_user = waitList[previously_mentioned]
-        mention_str = process_mention_command(ctx, str(previously_mentioned + 1))
-        await ctx.send(f"{next_user}님 차례입니다. {mention_str}")
+        await printlist(ctx)
+        return
+    try:
+        string_int = int(text)
+        string_int -= 1
+        if string_int < 0 or string_int >= len(waitList):
+            await ctx.send('없는 번호')
+            return
+        print('취소 :')
+        print(waitList[string_int])
+        del waitList[string_int]
 
-    await printlist(ctx)
+        await printlist(ctx)
+    except ValueError:
+        if text in waitList:
+            print('취소 :')
+            print(text)
+            waitList.remove(text)
+        else:
+            await ctx.send('없는 닉네임')
+
+
+
 @bot.command(aliases=["부취"])
 async def 부분취소(ctx, text):
     arr = text.split(',')
