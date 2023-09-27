@@ -287,7 +287,7 @@ async def on_ready():
 
     if not resetList.is_running():
         print('시트 불러오기 시작')
-        #resetList.start()
+        resetList.start()
 
     #counter.start()
 
@@ -1133,6 +1133,7 @@ async def 전적(ctx, *, text=None):
             embed.add_field(
                 name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
                 value=result['resultsWithEmojis'], inline=True)
+
     print("전적 검색6")
     field_count = len(embed.fields)
     if field_count > 0:
