@@ -1114,7 +1114,9 @@ async def 전적(ctx, *, text=None):
                 score = player_ranking[name]['score']
                 rank =player_ranking[name]['rank']
                 embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
-
+            else:
+                embed.add_field(name=f"{name}", value=output, inline=False)
+                
             print("전적 검색4")
             # 모스트
             most3_champs = spreadSheet.get_most_champions_for_nickname(name, 10)
