@@ -301,7 +301,7 @@ async def update_macpan_list(team, count):
     global previously_mentioned
 
     # 해당 팀의 막판 인원 업데이트
-    macpanList[team] = count
+    macpanList[team] = int(count)
 
     # 총 막판 인원 계산
     total_mentioned = sum(macpanList.values())
@@ -344,7 +344,7 @@ async def 막판(ctx, team, count):
             return
 
         # 막판 상태 업데이트
-        start_index, end_index = await update_macpan_list(team, count_int)
+        await update_macpan_list(team, count_int)
 
     #이건 안되겠다
     return
@@ -624,15 +624,16 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    start_index, end_index = await update_macpan_list(team, parts[1])
+
+    await update_macpan_list(team, parts[1])
     #이거 안될거 같음
     return
-    mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
+    #mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
 
     # 대기 메시지 추가
-    message_tail = f" {team} 팀 대기해 주세요."
+    #message_tail = f" {team} 팀 대기해 주세요."
 
-    await ctx.send(mention_str + message_tail)
+    #await ctx.send(mention_str + message_tail)
 
 @bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
