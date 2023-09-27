@@ -286,7 +286,8 @@ async def on_ready():
             break
 
     if not resetList.is_running():
-        resetList.start()
+        print('시트 불러오기 시작')
+        #resetList.start()
 
     #counter.start()
 

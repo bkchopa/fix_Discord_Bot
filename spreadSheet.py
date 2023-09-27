@@ -44,7 +44,7 @@ async def reload():
     player_info.clear()
     player_ranking.clear()
     top_champions.clear()
-
+    print('시트 전체')
     all_data = {}
     for i in range(MAX_RETRIES):
         try:
@@ -106,7 +106,7 @@ async def reload():
     for item in ranked_data:
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
-
+    print('날짜')
     #날짜
     values_in_column_A={}
     for i in range(MAX_RETRIES):
@@ -159,11 +159,7 @@ async def reload():
 
     update_date = f"{latest_date} {result}까지 반영"
 
-
-
-
-
-
+    print('모스트 픽 불러오기')
     # 각 플레이어별로 챔피언의 게임 및 승리 데이터를 저장
     champion_data = {}
 
@@ -188,7 +184,6 @@ async def reload():
         top_champions[nickname] = [
             (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"]) for champ in sorted_champs[:10]
         ]
-
 
 
 
