@@ -325,28 +325,25 @@ def update_macpan_list(team, count):
 
 
 @bot.command()
-async def 막판(ctx, team: str, count: str, *, text=None):
-    try:
-        start_index, end_index = update_macpan_list(team, count)
-    except ValueError as e:
-        await ctx.send(str(e))
+async def 막판(ctx, team, count):
+    # 팀 이름에서 숫자만 추출
+    team_num = ''.join(filter(str.isdigit, team))
+
+    if team_num not in ['1', '2', '3']:  # 1팀, 2팀, 3팀만 허용
+        await ctx.send('잘못된 팀 입력입니다.')
         return
 
-    index_str = "{}~{}".format(start_index + 1, end_index)
     try:
-        mention_str = process_mention_command(ctx, index_str, text)
-        await ctx.send(mention_str + f"{team}팀 대기해주세요")
-    except ValueError as e:
-        await ctx.send(str(e))
+        count_int = int(count.split("명")[0])  # "명" 문자열 기준으로 숫자만 추출
+    except ValueError:
+        await ctx.send('잘못된 인원 입력입니다.')
+        return
 
-    # 막판 상태를 디스코드 상태 메시지에 업데이트
-    retStr = "막판  "
-    for i in range(1, 4):
-        retStr += "{}팀 {}명   ".format(i, team_mentions["{}팀".format(i)])
+    # 막판 상태 업데이트
+    start_index, end_index = update_macpan_list(team_num, count)
+    mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
 
-    await bot.change_presence(activity=discord.Game(retStr))
-
-
+    await ctx.send(mention_str)
 
 @bot.command(aliases=["check", "췤", "첵", "쳌", "채크", "ㅊㅋ","cz","CZ","Cz","cZ"])
 async def 체크(ctx, *, text=None):
@@ -413,32 +410,24 @@ async def 취소(ctx, *, text=None):
 
     index_to_remove = None
 
+    # 제거할 사용자의 위치 확인
     if text is None:
         nickname = ctx.message.author.nick
         arr = nickname.split('/')
         if arr[0] in waitList:
             index_to_remove = waitList.index(arr[0])
-            waitList.remove(arr[0])
-            print('취소 :')
-            print(arr[0])
     else:
         try:
             string_int = int(text)
             string_int -= 1
             if 0 <= string_int < len(waitList):
                 index_to_remove = string_int
-                print('취소 :')
-                print(waitList[string_int])
-                del waitList[string_int]
             else:
                 await ctx.send('없는 번호')
                 return
         except ValueError:
             if text in waitList:
                 index_to_remove = waitList.index(text)
-                print('취소 :')
-                print(text)
-                waitList.remove(text)
             else:
                 await ctx.send('없는 닉네임')
 
@@ -447,6 +436,15 @@ async def 취소(ctx, *, text=None):
         next_user = waitList[previously_mentioned]
         mention_str = process_mention_command(ctx, str(previously_mentioned + 1))
         await ctx.send(f"{next_user}님 차례입니다. {mention_str}")
+
+    # 이제 사용자를 waitList에서 제거
+    if text is None:
+        waitList.remove(arr[0])
+        print('취소 :')
+        print(arr[0])
+    else:
+        if isinstance(index_to_remove, int):
+            del waitList[index_to_remove]
 
     await printlist(ctx)
 @bot.command(aliases=["부취"])
@@ -614,7 +612,9 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    await update_macpan_list(ctx, team, parts[1])
+    start_index, end_index = await update_macpan_list(team, parts[1])
+    mention_str = process_mention_command(ctx, f"{start_index + 1}~{end_index}")
+    await ctx.send(mention_str)
 
 @bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
