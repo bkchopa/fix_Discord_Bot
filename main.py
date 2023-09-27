@@ -292,58 +292,31 @@ async def on_ready():
     #counter.start()
 
 
-# 전역 변수
-previously_mentioned = 0
-team_mentions = {"1팀": 0, "2팀": 0, "3팀": 0}
 
 
-def update_macpan_list(team, count):
-    global previously_mentioned
 
-    # 지정된 수의 사용자에 대한 인덱스 문자열 생성
+async def update_macpan_list(ctx, team: str, count: str):
+    # 팀과 인원수에서 숫자 부분만 추출
     try:
-        count_int = int(count.split("명")[0])
+        team_int = int(team[0])
+        count_int = int(count[0])
     except ValueError:
-        raise ValueError('잘못된 입력')
+        await ctx.send('잘못된 입력')
+        return
 
-    # 이미 멘션한 사용자들 중 해당 팀의 사용자 수를 제외
-    previously_mentioned -= team_mentions[team]
+    # 입력된 팀 번호와 인원수 범위 검사
+    if team_int not in [1, 2, 3] or count_int < 0:
+        await ctx.send('잘못된 입력')
+        return
 
-    # 멘션할 사용자의 시작 인덱스 계산
-    start_index = previously_mentioned
-    end_index = start_index + count_int
+    macpanList[team_int] = count_int
 
-    if end_index > len(waitList):
-        raise ValueError("대기 목록에 지정된 수보다 적은 사용자가 있습니다.")
-
-    # 이전에 멘션한 사용자 수와 팀 별 멘션한 사용자 수 업데이트
-    previously_mentioned += count_int
-    team_mentions[team] = count_int
-
-    return start_index, end_index
-
+    retStr = f"막판  1팀 {macpanList[1]}명   2팀 {macpanList[2]}명   3팀 {macpanList[3]}명"
+    await bot.change_presence(activity=discord.Game(retStr))
 
 @bot.command()
 async def 막판(ctx, team: str, count: str, *, text=None):
-    try:
-        start_index, end_index = update_macpan_list(team, count)
-    except ValueError as e:
-        await ctx.send(str(e))
-        return
-
-    index_str = "{}~{}".format(start_index + 1, end_index)
-    try:
-        mention_str = process_mention_command(ctx, index_str, text)
-        await ctx.send(mention_str)
-    except ValueError as e:
-        await ctx.send(str(e))
-
-    # 막판 상태를 디스코드 상태 메시지에 업데이트
-    retStr = "막판  "
-    for i in range(1, 4):
-        retStr += "{}팀 {}명   ".format(i, team_mentions["{}팀".format(i)])
-
-    await bot.change_presence(activity=discord.Game(retStr))
+    await update_macpan_list(ctx, team, count)
 
 
 
