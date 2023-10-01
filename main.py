@@ -255,6 +255,9 @@ async def changetitle(ctx: discord.ext.commands.context.Context):
 
 @bot.event
 async def on_ready():
+    global waitList
+    waitList = []  # waitList 초기화
+
     print(f"봇={bot.user.name}로 연결중")
     print('연결이 완료되었습니다.')
     ch = bot.get_channel(890160605246414848)
@@ -264,14 +267,14 @@ async def on_ready():
         i += 1
 
 
-    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
 
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-    #await ch.send("재시작전 대기인원을 불러옵니다...")
+    await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
@@ -282,7 +285,7 @@ async def on_ready():
             for match in matches:
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
-            #await printlist(ch)
+            await printlist(ch)
             break
 
     if not resetList.is_running():
@@ -1116,7 +1119,7 @@ async def 전적(ctx, *, text=None):
                 embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
             else:
                 embed.add_field(name=f"{name}", value=output, inline=False)
-                
+
             print("전적 검색4")
             # 모스트
             most3_champs = spreadSheet.get_most_champions_for_nickname(name, 10)
