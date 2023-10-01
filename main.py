@@ -267,14 +267,14 @@ async def on_ready():
         i += 1
 
 
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
 
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     bot_messages = await ch.history(limit=100).flatten()
     bot_messages = [msg for msg in bot_messages if msg.author == bot.user]
-    await ch.send("재시작전 대기인원을 불러옵니다...")
+    #await ch.send("재시작전 대기인원을 불러옵니다...")
     for bot_msg in bot_messages:
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
@@ -285,7 +285,7 @@ async def on_ready():
             for match in matches:
                 waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
 
-            await printlist(ch)
+            #await printlist(ch)
             break
 
     if not resetList.is_running():
@@ -1030,6 +1030,12 @@ async def 맨션(ctx, index, *, text=None):
 
 @bot.command()
 async def 전적(ctx, *, text=None):
+    if ctx.channel.id != 1154474032310259733:
+        await ctx.send("fixgg 채널을 이용해주세요! 메세지는 4초 뒤 삭제됩니다")
+        await asyncio.sleep(4)
+        await ctx.channel.purge(limit=2)
+        return
+
     arr = list()
     print("전적 검색")
     if text is None:
