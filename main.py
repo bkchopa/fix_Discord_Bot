@@ -560,7 +560,7 @@ async def 리셋(ctx):
         await not_here(ctx)
         return
     waitList.clear()
-    ctx.send('리셋됨')
+    await ctx.send('리셋됨')
     await changetitle(ctx)
 
 @bot.command()
