@@ -80,12 +80,16 @@ def player_statistics(player_data, show_total=False, show_position=False):
     avg_death = total_deaths / total_games if total_games != 0 else 0
     avg_assist = total_assists / total_games if total_games != 0 else 0
 
-    kda = (total_kills + total_assists) / total_deaths if total_deaths != 0 else "Infinite"
+    if total_deaths != 0:
+        kda = (total_kills + total_assists) / total_deaths
+        kda_str = f"{kda:.2f}"
+    else:
+        kda_str = "Infinite"
     output = ""
     # Print overall statistics
     if show_total:
         output = (f"전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
-                  f" - KDA: {kda:.2f}\n")
+                  f" - KDA: {kda_str}\n")
 
     # Positional statistics
     if show_position:
