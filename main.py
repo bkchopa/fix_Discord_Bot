@@ -81,43 +81,45 @@ def player_statistics(player_data, show_total=False, show_position=False):
     avg_assist = total_assists / total_games if total_games != 0 else 0
 
     kda = (total_kills + total_assists) / total_deaths if total_deaths != 0 else "Infinite"
-
+    output = ""
     # Print overall statistics
-    output = (f"전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
-              f" - KDA: {kda:.2f}\n")
+    if show_total:
+        output = (f"전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
+                  f" - KDA: {kda:.2f}\n")
 
     # Positional statistics
-    for position in positions:
-        position_games = [game for game in player_data if game['position'] == position]
-        pos_total_games = len(position_games)
-        pos_wins = sum(1 for game in position_games if game['result'] == '승')
-        pos_losses = pos_total_games - pos_wins
-        pos_win_rate = (pos_wins / pos_total_games) * 100 if pos_total_games != 0 else 0
+    if show_position:
+        for position in positions:
+            position_games = [game for game in player_data if game['position'] == position]
+            pos_total_games = len(position_games)
+            pos_wins = sum(1 for game in position_games if game['result'] == '승')
+            pos_losses = pos_total_games - pos_wins
+            pos_win_rate = (pos_wins / pos_total_games) * 100 if pos_total_games != 0 else 0
 
-        pos_total_kills = sum(int(game['kill']) for game in position_games)
-        pos_total_deaths = sum(int(game['death']) for game in position_games)
-        pos_total_assists = sum(int(game['assist']) for game in position_games)
+            pos_total_kills = sum(int(game['kill']) for game in position_games)
+            pos_total_deaths = sum(int(game['death']) for game in position_games)
+            pos_total_assists = sum(int(game['assist']) for game in position_games)
 
-        pos_avg_kill = pos_total_kills / pos_total_games if pos_total_games != 0 else 0
-        pos_avg_death = pos_total_deaths / pos_total_games if pos_total_games != 0 else 0
-        pos_avg_assist = pos_total_assists / pos_total_games if pos_total_games != 0 else 0
+            pos_avg_kill = pos_total_kills / pos_total_games if pos_total_games != 0 else 0
+            pos_avg_death = pos_total_deaths / pos_total_games if pos_total_games != 0 else 0
+            pos_avg_assist = pos_total_assists / pos_total_games if pos_total_games != 0 else 0
 
-        pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else float('inf') # 'Infinite' 대신에 float('inf')를 사용
+            pos_kda = (pos_total_kills + pos_total_assists) / pos_total_deaths if pos_total_deaths != 0 else float('inf') # 'Infinite' 대신에 float('inf')를 사용
 
-        pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
-        if pos_total_games >= 5:
-            if pos_win_rate >= 60:
-                win_rate_symbol = "👍"
-            elif pos_win_rate < 40:
-                win_rate_symbol = "👎"
+            pos_kda_str = "Infinite" if pos_kda == float('inf') else f"{pos_kda:.2f}"
+            if pos_total_games >= 5:
+                if pos_win_rate >= 60:
+                    win_rate_symbol = "👍"
+                elif pos_win_rate < 40:
+                    win_rate_symbol = "👎"
+                else:
+                    win_rate_symbol = " "
             else:
-                win_rate_symbol = " "
-        else:
-            win_rate_symbol = ""
+                win_rate_symbol = ""
 
-        output += (
-            f"\n{win_rate_symbol} {position} - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
-            f" - KDA: {pos_kda_str}")
+            output += (
+                f"\n{win_rate_symbol} {position} - {pos_total_games}전 {pos_wins}승/{pos_losses}패 - {pos_win_rate:.2f}% 승률"
+                f" - KDA: {pos_kda_str}")
 
     return output
 
@@ -1127,9 +1129,10 @@ async def 전적(ctx, *, text=None):
 
         if name in player_info:
             # 워크시트 선택
+            currentMonth = player_statistics(spreadSheet.get_monthly_data(name, current_yymm), show_total=True,
+                                             show_position=False)
             total = player_statistics(player_info[name], show_total=True, show_position=True)
-            currentMonth = player_statistics(spreadSheet.get_monthly_data(name, current_yymm), show_total=True, show_position=False)
-            total = f"통합 {total}\n{current_yymm}월 {currentMonth}" #두개를 합쳐!
+            total = f"이번 달 {currentMonth}\n통합 {total}" #두개를 합쳐!
             if name in player_ranking:
                 score = player_ranking[name]['score']
                 rank =player_ranking[name]['rank']
