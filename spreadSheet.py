@@ -63,7 +63,6 @@ async def reload():
     print('시트 전체')
     if IS_FIRST_LOAD:  # 첫 로드 시 모든 시트 읽기
         sheet_ids = SPREADSHEET_IDS.items()
-        IS_FIRST_LOAD = False  # 첫 로드가 끝나면 플래그를 False로 설정
     else:  # 첫 로드가 아니면 마지막 시트만 읽기
         sheet_ids = [list(SPREADSHEET_IDS.items())[-1]]
 
@@ -127,8 +126,10 @@ async def reload():
                     "assist": assist
                 }
             )
-            if not IS_FIRST_LOAD:
-                LAST_READ_ROW += len(all_data)
+
+        if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
+            LAST_READ_ROW += len(all_data)
+
     #랭킹
     all_values = {}
     for i in range(MAX_RETRIES):
@@ -225,8 +226,7 @@ async def reload():
             (champ[0], champ[1]["wins"] / champ[1]["games"], champ[1]["games"]) for champ in sorted_champs[:10]
         ]
 
-
-
+    IS_FIRST_LOAD = False  # 첫 로드가 끝나면 플래그를 False로 설정
 
 
 
