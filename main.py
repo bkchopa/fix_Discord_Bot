@@ -55,7 +55,7 @@ currentAuctionMember = str()
 @tasks.loop(hours=1)
 async def resetList():
     await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
-    hour = datetime.datetime.now().hour
+    hour = datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
         await ch.send("명단 리셋합니다!")
