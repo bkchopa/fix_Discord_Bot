@@ -55,6 +55,7 @@ missedMemberList = list()
 currentAuctionMember = str()
 @tasks.loop(hours=1)
 async def resetList():
+    current_yymm = current_time.strftime('%y%m')
     await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
     hour = datetime.now().hour
     if hour is 22:
