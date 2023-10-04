@@ -13,13 +13,13 @@ import re
 import pytz
 
 # 한국 시간대를 설정
-korea_timezone = pytz.timezone('Asia/Seoul')
+KST = pytz.timezone('Asia/Seoul')
 
-# 현재 시간을 한국 시간대로 변환
-current_time_in_korea = datetime.datetime.now(korea_timezone)
+# 한국 시간대를 기준으로 현재 시간을 구합니다.
+current_time = datetime.now(KST)
 
-# 월 정보 얻기
-current_month = current_time_in_korea.month
+# 현재 시간을 'YYMM' 형식의 문자열로 변환합니다.
+current_yymm = current_time.strftime('%y%m')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -1126,8 +1126,8 @@ async def 전적(ctx, *, text=None):
         if name in player_info:
             # 워크시트 선택
             total = player_statistics(player_info[name], show_total=True, show_position=True)
-            currentMonth = player_statistics(spreadSheet.get_monthly_data(name, current_month), show_total=True, show_position=False)
-            total = f"통합 {total}\n{current_month}월 {currentMonth}" #두개를 합쳐!
+            currentMonth = player_statistics(spreadSheet.get_monthly_data(name, current_yymm), show_total=True, show_position=False)
+            total = f"통합 {total}\n{current_yymm}월 {currentMonth}" #두개를 합쳐!
             if name in player_ranking:
                 score = player_ranking[name]['score']
                 rank =player_ranking[name]['rank']

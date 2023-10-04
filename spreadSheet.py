@@ -21,8 +21,8 @@ GOOGLE_CREDENTIALS = json.loads(os.environ['GOOGLE_CREDENTIALS'])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, scope)
 client = gspread.authorize(creds)
 
-SPREADSHEET_IDS_JSON = os.environ['SPREADSHEET_IDS_JSON']
-SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)  # JSON 파싱
+SPREADSHEET_IDS_JSON = os.environ.get('SPREADSHEET_IDS_JSON', '{}')
+SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)
 # 워크시트 선택
 last_spreadsheet_id = SPREADSHEET_IDS[-1]
 rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
@@ -46,7 +46,7 @@ def get_monthly_data(nickname, target_month):
     if nickname in player_info:
         # 해당 닉네임의 모든 데이터를 확인하며 월이 일치하는 데이터만 추출
         for data in player_info[nickname]:
-            if data["month"] == target_month:
+            if data["YYMM"] == target_month:
                 monthly_data.append(data)
     return monthly_data
 
@@ -56,7 +56,7 @@ async def reload():
     player_ranking.clear()
     top_champions.clear()
     print('시트 전체')
-    for month, spreadsheet_id in SPREADSHEET_IDS.items():  # .items()로 key, value를 동시에 가져옵니다.
+    for YYMM, spreadsheet_id in SPREADSHEET_IDS.items():  # .items()로 key, value를 동시에 가져옵니다.
         spreadsheet = client.open_by_key(spreadsheet_id)
         rowDatasSheet = spreadsheet.worksheet("기입")
         all_data = {}
@@ -84,7 +84,7 @@ async def reload():
 
             player_info[nickname].append(
                 {
-                    "month": month,
+                    "month": YYMM,
                     "champion": champion,
                     "position": position,
                     "result": result,
@@ -107,7 +107,7 @@ async def reload():
 
             player_info[nickname].append(
                 {
-                    "month": month,
+                    "month": YYMM,
                     "champion": champion,
                     "position": position,
                     "result": result,
