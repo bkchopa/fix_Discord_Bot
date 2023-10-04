@@ -1170,7 +1170,7 @@ async def 전적(ctx, *, text=None):
         await ctx.send(embed=embed)
 
 
-@bot.command(name='전적갱신')
+@bot.command(name='갱신')
 async def 전적갱신(ctx):
     if ctx.channel.id != 1154474032310259733:
         await ctx.send("fixgg 채널을 이용해주세요! 메세지는 4초 뒤 삭제됩니다")
@@ -1179,6 +1179,7 @@ async def 전적갱신(ctx):
         return
 
     try:
+        await ctx.send('전적 갱신중.....')
         await spreadSheet.reload()  # reload 함수 호출
         await ctx.send('전적 갱신이 완료되었습니다.')
     except Exception as e:
