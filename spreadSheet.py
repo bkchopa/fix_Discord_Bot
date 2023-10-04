@@ -24,7 +24,8 @@ client = gspread.authorize(creds)
 SPREADSHEET_IDS_JSON = os.environ.get('SPREADSHEET_IDS_JSON', '{}')
 SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)
 # 워크시트 선택
-last_spreadsheet_id = SPREADSHEET_IDS[-1]
+last_key = list(SPREADSHEET_IDS.keys())[-1]  # 딕셔너리의 마지막 키 가져오기
+last_spreadsheet_id = SPREADSHEET_IDS[last_key]
 rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
 # 데이터 읽기와 쓰기 예제
 #print(worksheet.get_all_records())  # 모든 데이터 가져오기
