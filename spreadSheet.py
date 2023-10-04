@@ -22,11 +22,10 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, sco
 client = gspread.authorize(creds)
 
 
-SPREADSHEET_ID = os.environ['SPREADSHEET_ID']
-spreadsheet = client.open_by_key(SPREADSHEET_ID)
+SPREADSHEET_IDS = os.environ['SPREADSHEET_IDS'].split(',')
 # 워크시트 선택
-rowDatasSheet = spreadsheet.worksheet("기입")
-rankingSheet = spreadsheet.worksheet("내전 순위")
+last_spreadsheet_id = SPREADSHEET_IDS[-1]
+rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
 # 데이터 읽기와 쓰기 예제
 #print(worksheet.get_all_records())  # 모든 데이터 가져오기
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
@@ -45,50 +44,53 @@ async def reload():
     player_ranking.clear()
     top_champions.clear()
     print('시트 전체')
-    all_data = {}
-    for i in range(MAX_RETRIES):
-        try:
-            # 시트에 쓰기 시도
-            all_data = rowDatasSheet.get_all_values()
-        except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
-            time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
-            continue  # 다시 시도
+    for spreadsheet_id in SPREADSHEET_IDS:
+        spreadsheet = client.open_by_key(spreadsheet_id)
+        rowDatasSheet = spreadsheet.worksheet("기입")
+        all_data = {}
+        for i in range(MAX_RETRIES):
+            try:
+                # 시트에 쓰기 시도
+                all_data = rowDatasSheet.get_all_values()
+            except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
+                time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
+                continue  # 다시 시도
 
-    all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
-    for row in all_data:
-        if not row[16]:
-            continue
+        all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
+        for row in all_data:
+            if not row[16]:
+                continue
 
-        position = row[1]
-        nickname = row[2].lower()
-        champion = row[3]
-        result = row[4]
-        kill = row[6]
-        death = row[7]
-        assist = row[8]
+            position = row[1]
+            nickname = row[2].lower()
+            champion = row[3]
+            result = row[4]
+            kill = row[6]
+            death = row[7]
+            assist = row[8]
 
 
 
-        if nickname not in player_info:
-            player_info[nickname] = []
+            if nickname not in player_info:
+                player_info[nickname] = []
 
-        player_info[nickname].append(
-            {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
-             "assist": assist})
+            player_info[nickname].append(
+                {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
+                 "assist": assist})
 
-        position = row[9]
-        nickname = row[10].lower()
-        champion = row[11]
-        result = row[12]
-        kill = row[14]
-        death = row[15]
-        assist = row[16]
-        if nickname not in player_info:
-            player_info[nickname] = []
+            position = row[9]
+            nickname = row[10].lower()
+            champion = row[11]
+            result = row[12]
+            kill = row[14]
+            death = row[15]
+            assist = row[16]
+            if nickname not in player_info:
+                player_info[nickname] = []
 
-        player_info[nickname].append(
-            {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
-             "assist": assist})
+            player_info[nickname].append(
+                {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
+                 "assist": assist})
 
     #랭킹
     all_values = {}
@@ -107,12 +109,13 @@ async def reload():
         player_ranking[item["nickname"]] = {"rank": item["rank"], "score": item["score"]}
 
     print('날짜')
+
     #날짜
     values_in_column_A={}
     for i in range(MAX_RETRIES):
         try:
             # 시트에 쓰기 시도
-            values_in_column_A = rowDatasSheet.col_values(1)
+            values_in_column_A = client.open_by_key(last_spreadsheet_id).col_values(1)
         except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
             time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
             continue  # 다시 시도
