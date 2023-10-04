@@ -21,8 +21,8 @@ GOOGLE_CREDENTIALS = json.loads(os.environ['GOOGLE_CREDENTIALS'])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, scope)
 client = gspread.authorize(creds)
 
-
-SPREADSHEET_IDS = os.environ['SPREADSHEET_IDS'].split(',')
+SPREADSHEET_IDS_JSON = os.environ['SPREADSHEET_IDS_JSON']
+SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)  # JSON 파싱
 # 워크시트 선택
 last_spreadsheet_id = SPREADSHEET_IDS[-1]
 rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
@@ -38,25 +38,35 @@ def get_most_champions_for_nickname(nickname, count=5):
     champs = top_champions.get(nickname, [])
     return champs[:count]
 
+def get_monthly_data(nickname, target_month):
+    """
+    닉네임과 타겟 월을 기반으로 해당 월의 데이터만 추출
+    """
+    monthly_data = []
+    if nickname in player_info:
+        # 해당 닉네임의 모든 데이터를 확인하며 월이 일치하는 데이터만 추출
+        for data in player_info[nickname]:
+            if data["month"] == target_month:
+                monthly_data.append(data)
+    return monthly_data
+
 async def reload():
     global update_date
     player_info.clear()
     player_ranking.clear()
     top_champions.clear()
     print('시트 전체')
-    for spreadsheet_id in SPREADSHEET_IDS:
+    for month, spreadsheet_id in SPREADSHEET_IDS.items():  # .items()로 key, value를 동시에 가져옵니다.
         spreadsheet = client.open_by_key(spreadsheet_id)
         rowDatasSheet = spreadsheet.worksheet("기입")
         all_data = {}
         for i in range(MAX_RETRIES):
             try:
-                # 시트에 쓰기 시도
                 all_data = rowDatasSheet.get_all_values()
-            except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
-                time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
-                continue  # 다시 시도
+            except gspread.exceptions.APIError:
+                time.sleep(RETRY_WAIT_TIME)
+                continue
 
-        #all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
         for row in all_data:
             if not row[16]:
                 continue
@@ -69,14 +79,20 @@ async def reload():
             death = row[7]
             assist = row[8]
 
-
-
             if nickname not in player_info:
                 player_info[nickname] = []
 
             player_info[nickname].append(
-                {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
-                 "assist": assist})
+                {
+                    "month": month,
+                    "champion": champion,
+                    "position": position,
+                    "result": result,
+                    "kill": kill,
+                    "death": death,
+                    "assist": assist
+                }
+            )
 
             position = row[9]
             nickname = row[10].lower()
@@ -85,12 +101,21 @@ async def reload():
             kill = row[14]
             death = row[15]
             assist = row[16]
+
             if nickname not in player_info:
                 player_info[nickname] = []
 
             player_info[nickname].append(
-                {"champion": champion, "position": position, "result": result, "kill": kill, "death": death,
-                 "assist": assist})
+                {
+                    "month": month,
+                    "champion": champion,
+                    "position": position,
+                    "result": result,
+                    "kill": kill,
+                    "death": death,
+                    "assist": assist
+                }
+            )
 
     #랭킹
     all_values = {}

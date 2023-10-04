@@ -10,6 +10,16 @@ import spreadSheet
 from spreadSheet import player_info
 from spreadSheet import player_ranking
 import re
+import pytz
+
+# 한국 시간대를 설정
+korea_timezone = pytz.timezone('Asia/Seoul')
+
+# 현재 시간을 한국 시간대로 변환
+current_time_in_korea = datetime.datetime.now(korea_timezone)
+
+# 월 정보 얻기
+current_month = current_time_in_korea.month
 
 intents = discord.Intents.default()
 intents.members = True
@@ -111,7 +121,6 @@ def player_statistics(player_data):
 
 def player_statistics_recent10(player_data):
     recent_games = player_data[-10:]
-    recent_games = recent_games[::-1]
     returnTXT = ""
     winCnt = 0
     lossCnt = 0
@@ -155,7 +164,6 @@ def player_statistics_recent10(player_data):
 
 def player_statistics_recent5(player_data):
     recent_games = player_data[-5:]
-    recent_games = recent_games[::-1]
     returnTXT = ""
     winCnt = 0
     lossCnt = 0
@@ -1117,13 +1125,15 @@ async def 전적(ctx, *, text=None):
 
         if name in player_info:
             # 워크시트 선택
-            output = player_statistics(player_info[name])
+            total = player_statistics(player_info[name], show_total=True, show_position=True)
+            currentMonth = player_statistics(spreadSheet.get_monthly_data(name, current_month), show_total=True, show_position=False)
+            total = f"통합 {total}\n{current_month}월 {currentMonth}" #두개를 합쳐!
             if name in player_ranking:
                 score = player_ranking[name]['score']
                 rank =player_ranking[name]['rank']
-                embed.add_field(name=f"{name} {rank}/{score}점", value=output, inline=False)
+                embed.add_field(name=f"{name} {rank}/{score}점", value=total, inline=False)
             else:
-                embed.add_field(name=f"{name}", value=output, inline=False)
+                embed.add_field(name=f"{name}", value=total, inline=False)
 
             print("전적 검색4")
             # 모스트
