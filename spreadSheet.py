@@ -115,7 +115,7 @@ async def reload():
     for i in range(MAX_RETRIES):
         try:
             # 시트에 쓰기 시도
-            values_in_column_A = client.open_by_key(last_spreadsheet_id).col_values(1)
+            values_in_column_A = client.open_by_key(last_spreadsheet_id).worksheet("기입").col_values(1)
         except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
             time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
             continue  # 다시 시도
