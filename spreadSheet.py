@@ -47,8 +47,9 @@ def get_monthly_data(nickname, target_month):
     if nickname in player_info:
         # 해당 닉네임의 모든 데이터를 확인하며 월이 일치하는 데이터만 추출
         for data in player_info[nickname]:
-            if data["YYMM"] == target_month:
-                monthly_data.append(data)
+            if "YYMM" in data:
+                if data["YYMM"] == target_month:
+                    monthly_data.append(data)
     return monthly_data
 
 async def reload():
@@ -85,7 +86,7 @@ async def reload():
 
             player_info[nickname].append(
                 {
-                    "month": YYMM,
+                    "YYMM": YYMM,
                     "champion": champion,
                     "position": position,
                     "result": result,
@@ -108,7 +109,7 @@ async def reload():
 
             player_info[nickname].append(
                 {
-                    "month": YYMM,
+                    "YYMM": YYMM,
                     "champion": champion,
                     "position": position,
                     "result": result,

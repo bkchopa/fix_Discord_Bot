@@ -21,6 +21,7 @@ current_time = datetime.now(KST)
 
 # 현재 시간을 'YYMM' 형식의 문자열로 변환합니다.
 current_yymm = current_time.strftime('%y%m')
+print(current_yymm)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -82,7 +83,7 @@ def player_statistics(player_data, show_total=False, show_position=False):
     kda = (total_kills + total_assists) / total_deaths if total_deaths != 0 else "Infinite"
 
     # Print overall statistics
-    output = (f"총 전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
+    output = (f"전적 - {total_games}전 {wins}승/{losses}패 - {win_rate:.2f}% 승률 "
               f" - KDA: {kda:.2f}\n")
 
     # Positional statistics
