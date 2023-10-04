@@ -1165,6 +1165,19 @@ async def 전적(ctx, *, text=None):
         await ctx.send(embed=embed)
 
 
+@bot.command(name='전적갱신')
+async def 전적갱신(ctx):
+    if ctx.channel.id != 1154474032310259733:
+        await ctx.send("fixgg 채널을 이용해주세요! 메세지는 4초 뒤 삭제됩니다")
+        await asyncio.sleep(4)
+        await ctx.channel.purge(limit=2)
+        return
+
+    try:
+        await spreadSheet.reload()  # reload 함수 호출
+        await ctx.send('전적 갱신이 완료되었습니다.')
+    except Exception as e:
+        await ctx.send(f'오류가 발생했습니다: {str(e)}')
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")

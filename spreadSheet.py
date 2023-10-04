@@ -52,19 +52,28 @@ def get_monthly_data(nickname, target_month):
                     monthly_data.append(data)
     return monthly_data
 
+LAST_READ_ROW = 0  # 마지막으로 읽은 행을 전역 변수로 저장
+IS_FIRST_LOAD = True  # 첫 로드를 판별하는 플래그
+
 async def reload():
-    global update_date
+    global update_date, LAST_READ_ROW, IS_FIRST_LOAD
     player_info.clear()
     player_ranking.clear()
     top_champions.clear()
     print('시트 전체')
-    for YYMM, spreadsheet_id in SPREADSHEET_IDS.items():  # .items()로 key, value를 동시에 가져옵니다.
+    if IS_FIRST_LOAD:  # 첫 로드 시 모든 시트 읽기
+        sheet_ids = SPREADSHEET_IDS.items()
+        IS_FIRST_LOAD = False  # 첫 로드가 끝나면 플래그를 False로 설정
+    else:  # 첫 로드가 아니면 마지막 시트만 읽기
+        sheet_ids = [list(SPREADSHEET_IDS.items())[-1]]
+
+    for YYMM, spreadsheet_id in sheet_ids:
         spreadsheet = client.open_by_key(spreadsheet_id)
         rowDatasSheet = spreadsheet.worksheet("기입")
         all_data = {}
         for i in range(MAX_RETRIES):
             try:
-                all_data = rowDatasSheet.get_all_values()
+                all_data = rowDatasSheet.get_all_values() if IS_FIRST_LOAD else rowDatasSheet.get_all_values()[LAST_READ_ROW:]
             except gspread.exceptions.APIError:
                 time.sleep(RETRY_WAIT_TIME)
                 continue
@@ -118,7 +127,8 @@ async def reload():
                     "assist": assist
                 }
             )
-
+            if not IS_FIRST_LOAD:
+                LAST_READ_ROW += len(all_data)
     #랭킹
     all_values = {}
     for i in range(MAX_RETRIES):
