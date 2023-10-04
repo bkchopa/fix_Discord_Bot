@@ -62,7 +62,7 @@ async def resetList():
         waitList.clear()
         await printlist(ch)
 
-def player_statistics(player_data):
+def player_statistics(player_data, show_total=False, show_position=False):
     # Define positions in the order you want
     positions = ["TOP", "JUG", "MID", "ADC", "SUP"]
 
