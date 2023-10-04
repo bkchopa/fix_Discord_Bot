@@ -56,7 +56,7 @@ async def reload():
                 time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
                 continue  # 다시 시도
 
-        all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
+        #all_data = all_data[::-1]  # all_data 리스트를 거꾸로 뒤집어서 처리
         for row in all_data:
             if not row[16]:
                 continue

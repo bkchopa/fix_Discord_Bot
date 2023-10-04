@@ -110,7 +110,7 @@ def player_statistics(player_data):
     return output
 
 def player_statistics_recent10(player_data):
-    recent_games = player_data[:10]
+    recent_games = player_data[-10:]
     recent_games = recent_games[::-1]
     returnTXT = ""
     winCnt = 0
@@ -154,7 +154,7 @@ def player_statistics_recent10(player_data):
     }
 
 def player_statistics_recent5(player_data):
-    recent_games = player_data[:5]
+    recent_games = player_data[-5:]
     recent_games = recent_games[::-1]
     returnTXT = ""
     winCnt = 0
