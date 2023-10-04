@@ -57,11 +57,11 @@ IS_FIRST_LOAD = True  # 첫 로드를 판별하는 플래그
 
 async def reload():
     global update_date, LAST_READ_ROW, IS_FIRST_LOAD
-    player_info.clear()
     player_ranking.clear()
     top_champions.clear()
     print('시트 전체')
     if IS_FIRST_LOAD:  # 첫 로드 시 모든 시트 읽기
+        player_info.clear()
         sheet_ids = SPREADSHEET_IDS.items()
     else:  # 첫 로드가 아니면 마지막 시트만 읽기
         sheet_ids = [list(SPREADSHEET_IDS.items())[-1]]
