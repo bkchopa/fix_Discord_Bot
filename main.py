@@ -1260,7 +1260,13 @@ async def on_voice_state_update(member, before, after):
                     if room_channel and room_channel.members:
                         member_to_mention = random.choice(room_channel.members)
                         print(member_to_mention.name)
-                        await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요")
+                        await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요!")
+                        team_data["alert_sent"] = True  # Set the flag to True after sending the alert
+                    room_channel2 = bot.get_channel(team_data["ids"][2])  # Assuming id[2] is a team room
+                    if room_channel2 and room_channel.members:
+                        member_to_mention = random.choice(room_channel2.members)
+                        print(member_to_mention.name)
+                        await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요!")
                         team_data["alert_sent"] = True  # Set the flag to True after sending the alert
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
