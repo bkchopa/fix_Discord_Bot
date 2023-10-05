@@ -1244,6 +1244,7 @@ async def get_total_user_count_in_channels(channel_ids, count_only_mic_users=Fal
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    return
     # 나갈 때
     if before.channel:
         for team_name, team_data in team_lists.items():
