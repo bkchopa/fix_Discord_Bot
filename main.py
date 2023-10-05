@@ -309,7 +309,7 @@ async def on_ready():
         i += 1
 
 
-    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
+    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     bot_messages = await ch.history(limit=100).flatten()
@@ -1238,7 +1238,7 @@ async def on_voice_state_update(member, before, after):
                 total_user_count_in_lobby = await get_total_user_count_in_channels([team_data["ids"][0]])
 
                 total_user_count = total_user_count_in_team + total_user_count_in_lobby
-
+                print(total_user_count_in_team, total_user_count_in_lobby, total_user_count, team_data["alert_sent"])
                 # 로비 인원이 팀룸의 인원보다 많은 경우
                 if total_user_count_in_lobby > total_user_count_in_team:
                     await update_macpan_list(team_name, '0명')
@@ -1252,7 +1252,6 @@ async def on_voice_state_update(member, before, after):
                     # Get a random member from the room and send a mention
                     room_channel = bot.get_channel(team_data["ids"][1])  # Assuming id[1] is a team room
                     if room_channel and room_channel.members:
-
                         member_to_mention = random.choice(room_channel.members)
                         print(member_to_mention.name)
                         await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요")
