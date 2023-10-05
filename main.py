@@ -1212,6 +1212,7 @@ async def get_total_user_count_in_channels(channel_ids):
             total_user_count += len(channel.members)
     return total_user_count
 
+@bot.event
 async def on_voice_state_update(member, before, after):
     # 나갈 때
     if before.channel:
