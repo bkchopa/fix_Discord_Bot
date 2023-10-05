@@ -1244,9 +1244,9 @@ async def on_voice_state_update(member, before, after):
                     await update_macpan_list(team_name, '0명')
                     team_data["alert_sent"] = False  # Reset the flag when lobby has more members
                 # 전체 인원(로비 + 팀룸)이 4명 이하로 남아 있는 경우
-                elif total_user_count <= 4:
-                    await update_macpan_list(team_name, '0명')
-                    team_data["alert_sent"] = False  # Reset the flag when total user count is less than or equal to 4
+                #elif total_user_count <= 4:
+                    #await update_macpan_list(team_name, '0명')
+                    #team_data["alert_sent"] = False  # Reset the flag when total user count is less than or equal to 4
                 # 룸의 인원이 로비의 인원보다 많고, 이전에 알림을 보낸 적이 없는 경우
                 elif total_user_count_in_team > total_user_count_in_lobby and not team_data["alert_sent"]:
                     # Get a random member from the room and send a mention
