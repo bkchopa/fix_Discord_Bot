@@ -339,6 +339,7 @@ async def on_ready():
 
 
 async def update_macpan_list(team: str, count: str, ctx=None):
+
     try:
         count_int = int(count[0])
         team_int = int(team[0])
@@ -351,6 +352,12 @@ async def update_macpan_list(team: str, count: str, ctx=None):
         if ctx:
             await ctx.send('잘못된 입력')
         return
+
+    global team_data
+
+    if count == '0명':
+        team_lists[team]["alert_sent"] = True
+
 
     macpanList[team_int] = count_int
 
