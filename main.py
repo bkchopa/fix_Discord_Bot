@@ -319,7 +319,7 @@ async def on_ready():
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
             # 정규 표현식 패턴으로 번호와 뒤이어 오는 문자열(닉네임)을 찾습니다.
-            pattern = re.compile(r'\d+\.\s+([^\d]+)')
+            pattern = re.compile(r'\d+\.\s+([^\d]+(?:\s+[^\d]+)*)')
             matches = pattern.findall(text)
 
             for match in matches:
@@ -355,7 +355,7 @@ async def update_macpan_list(team: str, count: str, ctx=None):
 
     global team_data
 
-    if count == '0명':
+    if count_int == 0:
         team_lists[team]["alert_sent"] = True
 
 
@@ -1226,14 +1226,21 @@ async def get_user_count(channel_id):
     return 0
 
 
-async def get_total_user_count_in_channels(channel_ids):
+async def get_total_user_count_in_channels(channel_ids, count_only_mic_users=False):
     total_user_count = 0
     for channel_id in channel_ids:
         channel = bot.get_channel(channel_id)
         if channel:
-            total_user_count += len(channel.members)
+            for member in channel.members:
+                if count_only_mic_users:
+                    # 마이크를 끈 멤버는 카운트하지 않습니다.
+                    voice_state = member.voice
+                    if voice_state and not voice_state.self_mute:
+                        total_user_count += 1
+                else:
+                    # 모든 멤버를 카운트합니다.
+                    total_user_count += 1
     return total_user_count
-
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -1241,7 +1248,7 @@ async def on_voice_state_update(member, before, after):
     if before.channel:
         for team_name, team_data in team_lists.items():
             if before.channel.id in team_data["ids"]:
-                total_user_count_in_team = await get_total_user_count_in_channels(team_data["ids"][1:])
+                total_user_count_in_team = await get_total_user_count_in_channels(team_data["ids"][1:], True)
                 total_user_count_in_lobby = await get_total_user_count_in_channels([team_data["ids"][0]])
 
                 total_user_count = total_user_count_in_team + total_user_count_in_lobby
