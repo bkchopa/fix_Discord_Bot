@@ -51,9 +51,9 @@ team2_list = [890161063130177536, 890161039793086465, 921703036294926366]
 team3_list = [920998312998502451, 921018416473718834, 921703123221884969]
 
 team_lists = {
-    '1': team1_list,
-    '2': team2_list,
-    '3': team3_list
+    '1팀': team1_list,
+    '2팀': team2_list,
+    '3팀': team3_list
 }
 
 remainMileageDic = dict()
@@ -303,9 +303,7 @@ async def on_ready():
         i += 1
 
 
-    #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
-
-
+    await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
 
     bot_messages = await ch.history(limit=100).flatten()
@@ -1221,7 +1219,7 @@ async def on_voice_state_update(member, before, after):
             if before.channel.id in channel_ids:
                 total_user_count = await get_total_user_count_in_channels(channel_ids)
                 if total_user_count <= 4:
-                    await update_macpan_list(int(team_name), 0, ctx=None)
+                    await update_macpan_list(team_name, 0, ctx=None)
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
 
