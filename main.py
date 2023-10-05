@@ -57,6 +57,13 @@ currentAuctionMember = str()
 async def resetList():
     current_yymm = current_time.strftime('%y%m')
     await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
+    #채널 이름 바꾸기
+    channel = bot.get_channel(1154474032310259733)
+    if channel:  # Check if channel exists
+        if channel.permissions_for(channel.guild.me).manage_channels:
+            await channel.edit(name=f"FixGG {spreadSheet.update_date}")
+
+    spreadSheet.update_date
     hour = datetime.now().hour
     if hour is 22:
         ch = bot.get_channel(890160605246414848)
@@ -1098,7 +1105,8 @@ async def 전적(ctx, *, text=None):
         except ValueError:
             arr = text.split(',')
     print("전적 검색2")
-    embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}", color=discord.Color.blue())
+    embed = discord.Embed()
+    #embed = discord.Embed(title=f"최근 전적 {spreadSheet.update_date}", color=discord.Color.blue())
     if len(arr) > 1:
         for name in arr:
             name = name.lower()
