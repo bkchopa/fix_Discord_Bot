@@ -1238,7 +1238,6 @@ async def on_voice_state_update(member, before, after):
                 total_user_count_in_lobby = await get_total_user_count_in_channels([team_data["ids"][0]])
 
                 total_user_count = total_user_count_in_team + total_user_count_in_lobby
-                print(total_user_count_in_team, total_user_count_in_lobby, total_user_count, team_data["alert_sent"])
                 # 로비 인원이 팀룸의 인원보다 많은 경우
                 if total_user_count_in_lobby > total_user_count_in_team:
                     await update_macpan_list(team_name, '0명')
@@ -1248,7 +1247,7 @@ async def on_voice_state_update(member, before, after):
                     #await update_macpan_list(team_name, '0명')
                     #team_data["alert_sent"] = False  # Reset the flag when total user count is less than or equal to 4
                 # 룸의 인원이 로비의 인원보다 많고, 이전에 알림을 보낸 적이 없는 경우
-                elif total_user_count_in_team > total_user_count_in_lobby and not team_data["alert_sent"]:
+                elif total_user_count_in_team > total_user_count_in_lobby and not team_data["alert_sent"] and macpanList(int(team_name[0])) == 0:
                     # Get a random member from the room and send a mention
                     room_channel = bot.get_channel(team_data["ids"][1])  # Assuming id[1] is a team room
                     if room_channel and room_channel.members:
