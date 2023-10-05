@@ -46,7 +46,15 @@ lastMember =""
 lastBidder =""
 lastPrice = 0
 
+team1_list = [944246730722013194, 1133763001766391808, 890160695499423774]
+team2_list = [890161063130177536, 890161039793086465, 921703036294926366]
+team3_list = [920998312998502451, 921018416473718834, 921703123221884969]
 
+team_lists = {
+    '1': team1_list,
+    '2': team2_list,
+    '3': team3_list
+}
 
 remainMileageDic = dict()
 memberListDic = defaultdict(list)
@@ -242,6 +250,8 @@ async def send_game_results(ctx, statistics):
 
     await ctx.send(embed=embed)
 
+
+
 async def printlist(ctx: discord.ext.commands.context.Context):
     ret = "대기인원: "
     idx = 1
@@ -324,18 +334,18 @@ async def on_ready():
 
 
 
-async def update_macpan_list(ctx, team: str, count: str):
-    # 팀과 인원수에서 숫자 부분만 추출
+async def update_macpan_list(team: str, count: str, ctx=None):
     try:
-        team_int = int(team[0])
         count_int = int(count[0])
+        team_int = int(team[0])
     except ValueError:
-        await ctx.send('잘못된 입력')
+        if ctx:
+            await ctx.send('잘못된 입력')
         return
 
-    # 입력된 팀 번호와 인원수 범위 검사
     if team_int not in [1, 2, 3] or count_int < 0:
-        await ctx.send('잘못된 입력')
+        if ctx:
+            await ctx.send('잘못된 입력')
         return
 
     macpanList[team_int] = count_int
@@ -345,7 +355,7 @@ async def update_macpan_list(ctx, team: str, count: str):
 
 @bot.command()
 async def 막판(ctx, team: str, count: str, *, text=None):
-    await update_macpan_list(ctx, team, count)
+    await update_macpan_list(team, count, ctx)
 
 
 
@@ -1053,6 +1063,8 @@ async def 맨션(ctx, index, *, text=None):
     except ValueError as e:
         await ctx.send(str(e))
 
+
+
 @bot.command()
 async def 전적(ctx, *, text=None):
     if ctx.channel.id != 1154474032310259733:
@@ -1194,6 +1206,23 @@ async def 전적갱신(ctx):
         await ctx.send('전적 갱신이 완료되었습니다.')
     except Exception as e:
         await ctx.send(f'오류가 발생했습니다: {str(e)}')
+async def get_total_user_count_in_channels(channel_ids):
+    total_user_count = 0
+    for channel_id in channel_ids:
+        channel = bot.get_channel(channel_id)
+        if channel:
+            total_user_count += len(channel.members)
+    return total_user_count
 
+async def on_voice_state_update(member, before, after):
+    # 나갈 때
+    if before.channel:
+        for team_name, channel_ids in team_lists.items():
+            if before.channel.id in channel_ids:
+                total_user_count = await get_total_user_count_in_channels(channel_ids)
+                if total_user_count <= 4:
+                    await update_macpan_list(int(team_name), 0, ctx=None)
+
+                break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
