@@ -46,9 +46,9 @@ lastMember =""
 lastBidder =""
 lastPrice = 0
 
-team1_list = [944246730722013194, 1133763001766391808, 890160695499423774]
-team2_list = [890161063130177536, 890161039793086465, 921703036294926366]
-team3_list = [920998312998502451, 921018416473718834, 921703123221884969]
+team1_list = [890160695499423774, 944246730722013194, 1133763001766391808]
+team2_list = [921703036294926366, 890161063130177536, 890161039793086465]
+team3_list = [921703123221884969, 920998312998502451, 921018416473718834]
 
 team_lists = {
     "1팀": {"ids": team1_list, "alert_sent": False},
@@ -1252,7 +1252,9 @@ async def on_voice_state_update(member, before, after):
                     # Get a random member from the room and send a mention
                     room_channel = bot.get_channel(team_data["ids"][1])  # Assuming id[1] is a team room
                     if room_channel and room_channel.members:
+
                         member_to_mention = random.choice(room_channel.members)
+                        print(member_to_mention.name)
                         await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요")
                         team_data["alert_sent"] = True  # Set the flag to True after sending the alert
 
