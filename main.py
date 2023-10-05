@@ -61,7 +61,9 @@ async def resetList():
     channel = bot.get_channel(1154474032310259733)
     if channel:  # Check if channel exists
         if channel.permissions_for(channel.guild.me).manage_channels:
-            await channel.edit(name=f"FixGG {spreadSheet.update_date}")
+            new_name = f"FixGG {spreadSheet.update_date}"
+            safe_name = new_name.replace(' ', '_')
+            await channel.edit(name=safe_name)
 
     spreadSheet.update_date
     hour = datetime.now().hour
