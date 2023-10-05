@@ -319,7 +319,7 @@ async def on_ready():
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
             # 정규 표현식 패턴으로 번호와 뒤이어 오는 문자열(닉네임)을 찾습니다.
-            pattern = re.compile(r'\d+\.\s+([^0-9]+)')
+            pattern = re.compile(r'\d+\.\s+([^\d]+)')
             matches = pattern.findall(text)
 
             for match in matches:
@@ -592,7 +592,7 @@ async def process_alternate_format(ctx, team: str, args: str):
     if len(parts) < 2 or parts[0] != "막판":
         await ctx.send('잘못된 입력')
         return
-    await update_macpan_list(ctx, team, parts[1])
+    await update_macpan_list(team, parts[1], ctx)
 
 @bot.command(aliases=["ㄽ"])
 async def 리셋(ctx):
