@@ -1218,8 +1218,9 @@ async def on_voice_state_update(member, before, after):
         for team_name, channel_ids in team_lists.items():
             if before.channel.id in channel_ids:
                 total_user_count = await get_total_user_count_in_channels(channel_ids)
+                print(total_user_count)
                 if total_user_count <= 4:
-                    await update_macpan_list(team_name, 0, ctx=None)
+                    await update_macpan_list(team_name, '0명', ctx=None)
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
 
