@@ -81,6 +81,8 @@ async def reload():
                     end_row = rowDatasSheet.row_count
                     range_str = f"A{start_row}:Q{end_row}"
                     all_data = rowDatasSheet.get(range_str)
+
+                break
             except gspread.exceptions.APIError:
                 time.sleep(RETRY_WAIT_TIME)
                 continue
@@ -145,6 +147,7 @@ async def reload():
         try:
             # 시트에 쓰기 시도
             all_values = rankingSheet.get_all_values()
+            break
         except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
             time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
             continue  # 다시 시도
@@ -163,6 +166,7 @@ async def reload():
         try:
             # 시트에 쓰기 시도
             values_in_column_A = client.open_by_key(last_spreadsheet_id).worksheet("기입").col_values(1)
+            break
         except gspread.exceptions.APIError:  # 여기서 오류 유형을 확인하고 적절한 예외로 대체해야 합니다.
             time.sleep(RETRY_WAIT_TIME)  # 일정 시간 동안 대기
             continue  # 다시 시도
