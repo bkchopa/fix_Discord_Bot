@@ -140,9 +140,11 @@ async def reload():
                 }
             )
 
-        if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
-            print(last_row)
-            LAST_READ_ROW = last_row
+            if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
+                LAST_READ_ROW = last_row
+
+
+
 
     print('랭킹')
     #랭킹
