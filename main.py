@@ -1275,7 +1275,7 @@ async def on_voice_state_update(member, before, after):
                             print(member_to_mention.name)
                             await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요!")
 
-                    team_data["alert_sent"] == "Started"
+                    team_data["alert_sent"] = "Started"
 
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
