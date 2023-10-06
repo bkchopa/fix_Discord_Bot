@@ -95,6 +95,9 @@ async def reload():
                 if len(row) < 17:
                     continue
 
+                if not row[16]:
+                    continue
+
                 position = row[1]
                 nickname = row[2].lower()
                 champion = row[3]
