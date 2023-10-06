@@ -79,6 +79,7 @@ async def reload():
                 else:
                     start_row = LAST_READ_ROW + 1
                     end_row = rowDatasSheet.row_count
+                    print(start_row, end_row)
                     range_str = f"A{start_row}:Z{end_row}"
                     all_data = rowDatasSheet.get(range_str)
 
@@ -87,7 +88,9 @@ async def reload():
                 time.sleep(RETRY_WAIT_TIME)
                 continue
         print(f'{YYMM} 시트 데이터 파싱')
+        last_row = 0
         for row in all_data:
+            last_row += 1
             if not row[16]:
                 continue
 
@@ -138,7 +141,8 @@ async def reload():
             )
 
         if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
-            LAST_READ_ROW += len(all_data)
+            print(last_row)
+            LAST_READ_ROW = last_row
 
     print('랭킹')
     #랭킹
