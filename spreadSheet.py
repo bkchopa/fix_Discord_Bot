@@ -90,59 +90,62 @@ async def reload():
         print(f'{YYMM} 시트 데이터 파싱')
         last_row = 0
         for row in all_data:
-            last_row += 1
-            if not row[16]:
-                continue
+            try:
+                last_row += 1
+                if not row[16]:
+                    continue
 
-            position = row[1]
-            nickname = row[2].lower()
-            champion = row[3]
-            result = row[4]
-            kill = row[6]
-            death = row[7]
-            assist = row[8]
+                position = row[1]
+                nickname = row[2].lower()
+                champion = row[3]
+                result = row[4]
+                kill = row[6]
+                death = row[7]
+                assist = row[8]
 
-            if nickname not in player_info:
-                player_info[nickname] = []
+                if nickname not in player_info:
+                    player_info[nickname] = []
 
-            player_info[nickname].append(
-                {
-                    "YYMM": YYMM,
-                    "champion": champion,
-                    "position": position,
-                    "result": result,
-                    "kill": kill,
-                    "death": death,
-                    "assist": assist
-                }
-            )
+                player_info[nickname].append(
+                    {
+                        "YYMM": YYMM,
+                        "champion": champion,
+                        "position": position,
+                        "result": result,
+                        "kill": kill,
+                        "death": death,
+                        "assist": assist
+                    }
+                )
 
-            position = row[9]
-            nickname = row[10].lower()
-            champion = row[11]
-            result = row[12]
-            kill = row[14]
-            death = row[15]
-            assist = row[16]
+                position = row[9]
+                nickname = row[10].lower()
+                champion = row[11]
+                result = row[12]
+                kill = row[14]
+                death = row[15]
+                assist = row[16]
 
-            if nickname not in player_info:
-                player_info[nickname] = []
+                if nickname not in player_info:
+                    player_info[nickname] = []
 
-            player_info[nickname].append(
-                {
-                    "YYMM": YYMM,
-                    "champion": champion,
-                    "position": position,
-                    "result": result,
-                    "kill": kill,
-                    "death": death,
-                    "assist": assist
-                }
-            )
+                player_info[nickname].append(
+                    {
+                        "YYMM": YYMM,
+                        "champion": champion,
+                        "position": position,
+                        "result": result,
+                        "kill": kill,
+                        "death": death,
+                        "assist": assist
+                    }
+                )
 
-            if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
-                LAST_READ_ROW = last_row
-
+                if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
+                    LAST_READ_ROW = last_row
+            except IndexError:
+                print(f"Error with row {last_row}: {row}")
+                # 다른 오류 처리 로직
 
 
 
