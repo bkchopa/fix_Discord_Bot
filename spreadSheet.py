@@ -72,11 +72,19 @@ async def reload():
         all_data = {}
         for i in range(MAX_RETRIES):
             try:
-                all_data = rowDatasSheet.get_all_values() if IS_FIRST_LOAD else rowDatasSheet.get_all_values()[LAST_READ_ROW:]
+                if IS_FIRST_LOAD:
+                    print(f'{YYMM} 시트 불러오는 중')
+                    all_data = rowDatasSheet.get_all_values()
+                    print(f'{YYMM} 시트 불러오기 완')
+                else:
+                    start_row = LAST_READ_ROW + 1
+                    end_row = rowDatasSheet.row_count
+                    range_str = f"A{start_row}:Q{end_row}"
+                    all_data = rowDatasSheet.get(range_str)
             except gspread.exceptions.APIError:
                 time.sleep(RETRY_WAIT_TIME)
                 continue
-
+        print(f'{YYMM} 시트 데이터 파싱')
         for row in all_data:
             if not row[16]:
                 continue
@@ -130,6 +138,7 @@ async def reload():
         if list(SPREADSHEET_IDS.values())[-1] == spreadsheet_id:
             LAST_READ_ROW += len(all_data)
 
+    print('랭킹')
     #랭킹
     all_values = {}
     for i in range(MAX_RETRIES):
