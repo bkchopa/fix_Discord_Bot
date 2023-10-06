@@ -79,7 +79,7 @@ async def reload():
                 else:
                     start_row = LAST_READ_ROW + 1
                     end_row = rowDatasSheet.row_count
-                    range_str = f"A{start_row}:Q{end_row}"
+                    range_str = f"A{start_row}:Z{end_row}"
                     all_data = rowDatasSheet.get(range_str)
 
                 break
