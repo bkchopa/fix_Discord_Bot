@@ -90,9 +90,10 @@ async def reload():
         print(f'{YYMM} 시트 데이터 파싱')
         last_row = 0
         for row in all_data:
+
             try:
                 last_row += 1
-                if not row[16]:
+                if len(row) < 16:
                     continue
 
                 position = row[1]
