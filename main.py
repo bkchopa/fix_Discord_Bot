@@ -1257,11 +1257,11 @@ async def on_voice_state_update(member, before, after):
                     await update_macpan_list(team_name, '0명')
                     team_data["alert_sent"] = "Idle"  # Reset the flag when lobby has more members
                 # 전체 인원(로비 + 팀룸)이 4명 이하로 남아 있는 경우
-                #elif total_user_count <= 4 and and team_data["alert_sent"] == "Started":
-                    #await update_macpan_list(team_name, '0명')
-                    #team_data["alert_sent"] = "Idle"  # Reset the flag when total user count is less than or equal to 4
+                elif total_user_count <= 4 and team_data["alert_sent"] == "Started":
+                    await update_macpan_list(team_name, '0명')
+                    team_data["alert_sent"] = "Idle"  # Reset the flag when total user count is less than or equal to 4
                 # 룸의 인원이 로비의 인원보다 많고, 이전에 알림을 보낸 적이 없는 경우
-                elif total_user_count_in_team > total_user_count_in_lobby and team_data["alert_sent"] !="Started" and macpanList[int(team_name[0])] == 0:
+                elif total_user_count_in_lobby != 0 and total_user_count_in_team > total_user_count_in_lobby and team_data["alert_sent"] !="Started" and macpanList[int(team_name[0])] == 0:
                     if team_data["alert_sent"] == "Idle":
                         # Get a random member from the room and send a mention
                         room_channel = bot.get_channel(team_data["ids"][1])  # Assuming id[1] is a team room
@@ -1270,7 +1270,7 @@ async def on_voice_state_update(member, before, after):
                             print(member_to_mention.name)
                             await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요!")
                         room_channel2 = bot.get_channel(team_data["ids"][2])  # Assuming id[2] is a team room
-                        if room_channel2 and room_channel.members:
+                        if room_channel2 and room_channel2.members:
                             member_to_mention = random.choice(room_channel2.members)
                             print(member_to_mention.name)
                             await sendToChannel(f"{member_to_mention.mention} 막판 체크 해주세요!")
