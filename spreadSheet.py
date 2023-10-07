@@ -70,6 +70,8 @@ async def reload():
         spreadsheet = client.open_by_key(spreadsheet_id)
         rowDatasSheet = spreadsheet.worksheet("기입")
         all_data = {}
+        last_row = LAST_READ_ROW
+
         for i in range(MAX_RETRIES):
             try:
                 if IS_FIRST_LOAD:
@@ -88,7 +90,7 @@ async def reload():
                 time.sleep(RETRY_WAIT_TIME)
                 continue
         print(f'{YYMM} 시트 데이터 파싱')
-        last_row = 0
+
         for row in all_data:
             try:
                 last_row += 1
