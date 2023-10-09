@@ -1226,7 +1226,7 @@ async def get_user_count(channel_id):
     return 0
 
 
-def get_total_user_count_in_channels(channel_ids, count_only_mic_users=False):
+async def get_total_user_count_in_channels(channel_ids, count_only_mic_users=False):
     total_user_count = 0
     for channel_id in channel_ids:
         channel = bot.get_channel(channel_id)
@@ -1248,8 +1248,8 @@ async def on_voice_state_update(member, before, after):
     if before.channel:
         for team_name, team_data in team_lists.items():
             if before.channel.id in team_data["ids"]:
-                total_user_count_in_team = get_total_user_count_in_channels(team_data["ids"][1:], True)
-                total_user_count_in_lobby = get_total_user_count_in_channels([team_data["ids"][0]])
+                total_user_count_in_team = await get_total_user_count_in_channels(team_data["ids"][1:], True)
+                total_user_count_in_lobby = await get_total_user_count_in_channels([team_data["ids"][0]])
 
                 total_user_count = total_user_count_in_team + total_user_count_in_lobby
                 # 로비 인원이 팀룸의 인원보다 많은 경우
