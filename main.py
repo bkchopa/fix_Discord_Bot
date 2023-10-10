@@ -1286,7 +1286,7 @@ async def on_voice_state_update(member, before, after):
 
 
 @bot.command()
-async def 인게임(ctx, summoner_name: str):
+async def 인게임(ctx, *, summoner_name: str):
     # Riot API를 이용하여 소환사의 정보를 가져오기
     summoner_info = riot_api_utils.get_summoner_info(summoner_name)
 
