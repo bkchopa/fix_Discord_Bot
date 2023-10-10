@@ -12,6 +12,7 @@ from spreadSheet import player_info
 from spreadSheet import player_ranking
 import re
 import pytz
+import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
@@ -1279,4 +1280,43 @@ async def on_voice_state_update(member, before, after):
 
 
                 break  # 리스트 중 하나에서 일치하는 ID를 찾았다면 추가 탐색 중단
+
+
+
+
+
+@bot.command()
+async def 인게임(ctx, summoner_name: str):
+    # Riot API를 이용하여 소환사의 정보를 가져오기
+    summoner_info = riot_api_utils.get_summoner_info(summoner_name)
+
+    if not summoner_info:
+        await ctx.send("소환사를 찾을 수 없습니다.")
+        return
+
+    summoner_id = summoner_info['id']
+
+    # 현재 게임 정보를 가져오기
+    current_game_info = riot_api_utils.get_current_game_info(summoner_id)
+    if not current_game_info:
+        await ctx.send("소환사가 게임 중이 아닙니다.")
+        return
+
+    # 챔피언 ID-이름 매핑 정보를 불러오기
+    with open("champion_id_name_map_korean.json", "r", encoding="utf-8") as f:
+        champion_map = json.load(f)
+
+    # 게임 정보 중에서 팀 정보, 챔피언 정보 등을 추출하여 메시지로 보내기
+    for participant in current_game_info['participants']:
+        if participant['summonerId'] == summoner_id:
+            champion_id = participant['championId']
+            team_id = participant['teamId']
+            break
+
+    # 챔피언 ID를 사용하여 챔피언의 이름을 가져오기
+    champion_name = champion_map.get(str(champion_id), "Unknown Champion")
+
+    await ctx.send(f"{summoner_name}님은 현재 {team_id}팀에서 {champion_name}으로 게임 중입니다.")
+
+
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
