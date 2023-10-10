@@ -1341,12 +1341,18 @@ async def 채널(ctx, channel_id: int = None):
             game_info = await riot_api_utils.get_game_info(summoner_name)
 
             if game_info:
-                champion_name = champ_id_to_name.get(str(game_info["champion"]), "알 수 없는 챔피언")
-                game_info_dict[summoner_name] = {
-                    "gameId": game_info["gameId"],
-                    "team": game_info["team"],
-                    "champion": champion_name  # 챔피언 이름
-                }
+                # 게임 정보 중에서 팀 정보, 챔피언 정보 등을 추출하여 메시지로 보내기
+                for participant in game_info['participants']:
+                    if participant['summonerId'] == summoner_name:
+                        champion_id = participant['championId']
+                        team_id = participant['teamId']
+                        champion_name = champ_id_to_name.get(str(champion_id), "알 수 없는 챔피언")
+                        game_info_dict[summoner_name] = {
+                            "gameId": game_info["gameId"],
+                            "team": team_id,
+                            "champion": champion_name  # 챔피언 이름
+                        }
+                        break
 
         # 같은 게임에 참여하고 있는 사용자들을 찾기
         same_game_members = {}
