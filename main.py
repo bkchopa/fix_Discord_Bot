@@ -1286,7 +1286,7 @@ async def on_voice_state_update(member, before, after):
 
 
 @bot.command()
-async def 인게임(ctx, *, summoner_name: str):
+async def 유저(ctx, *, summoner_name: str):
     # Riot API를 이용하여 소환사의 정보를 가져오기
     summoner_info = riot_api_utils.get_summoner_info(summoner_name)
 
@@ -1317,6 +1317,51 @@ async def 인게임(ctx, *, summoner_name: str):
     champion_name = champion_map.get(str(champion_id), "Unknown Champion")
 
     await ctx.send(f"{summoner_name}님은 현재 {team_id}팀에서 {champion_name}으로 게임 중입니다.")
+
+@bot.command()
+async def 채널(ctx, channel_id: int = None):
+    if channel_id:
+        channel = bot.get_channel(channel_id)
+    else:
+        channel = ctx.author.voice.channel if ctx.author.voice else None
+
+    if channel and isinstance(channel, discord.VoiceChannel):
+        members = channel.members
+
+        # 챔피언 ID를 챔피언 이름으로 맵핑하는 딕셔너리를 불러옴
+        with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
+            champ_id_to_name = json.load(f)
+
+        game_info_dict = {}
+
+        # 모든 채널 멤버에 대해 게임 정보를 얻고 딕셔너리에 저장
+        for member in members:
+            summoner_name = member.name
+            game_info = await riot_api_utils.get_game_info(summoner_name)
+
+            if game_info:
+                champion_name = champ_id_to_name.get(str(game_info["champion"]), "알 수 없는 챔피언")
+                game_info_dict[summoner_name] = {
+                    "gameId": game_info["gameId"],
+                    "team": game_info["team"],
+                    "champion": champion_name  # 챔피언 이름
+                }
+
+        # 같은 게임에 참여하고 있는 사용자들을 찾기
+        same_game_members = {}
+        for summoner_name, info in game_info_dict.items():
+            same_game_members.setdefault(info["gameId"], []).append(summoner_name)
+
+        # 3명 이상이 같은 게임에 참여하고 있는지 확인
+        for game_id, members_in_game in same_game_members.items():
+            if len(members_in_game) >= 2:
+                await ctx.send(f"2명 이상의 사용자가 같은 게임 (ID: {game_id})에 참여하고 있습니다.")
+                # game_info_dict의 내용 출력
+                for member in members_in_game:
+                    info = game_info_dict[member]
+                    await ctx.send(f"소환사 이름: {member}, 팀: {info['team']}, 챔피언: {info['champion']}")
+    else:
+        await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
 
 bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
