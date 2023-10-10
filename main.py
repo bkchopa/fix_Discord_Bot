@@ -1337,9 +1337,9 @@ async def 채널(ctx, channel_id: int = None):
         # 모든 채널 멤버에 대해 게임 정보를 얻고 딕셔너리에 저장
         for member in members:
             summoner_name = member.nick.split('/')[0]
-            print(summoner_name)
-            game_info = await riot_api_utils.get_game_info(summoner_name)
 
+            game_info = await riot_api_utils.get_game_info(summoner_name)
+            print(game_info)
             if game_info:
                 # 게임 정보 중에서 팀 정보, 챔피언 정보 등을 추출하여 메시지로 보내기
                 for participant in game_info['participants']:
