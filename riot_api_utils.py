@@ -1,5 +1,6 @@
 import requests
 import aiohttp
+import asyncio
 
 summoner_dict = {}
 
@@ -8,11 +9,14 @@ RIOT_API_URL_SUMMONER = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/
 RIOT_API_URL_CURRENT_GAME = "https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/{summoner_id}"
 
 async def update_summoner_id_dict(nickname_list):
-    for nickname in nickname_list:
+    # 이 함수는 nickname에 대해 get_summoner_info를 호출하고, 결과를 summoner_id_dict에 저장합니다.
+    async def update_one(nickname):
         summoner_info = await get_summoner_info(nickname)
         if summoner_info:
             summoner_dict[nickname] = summoner_info
-            print(nickname, summoner_dict[nickname]['id'])
+
+    # asyncio.gather를 사용해 여러 닉네임에 대해 동시에 update_one을 호출합니다.
+    await asyncio.gather(*(update_one(nickname) for nickname in nickname_list))
 
 async def get_summoner_info(summoner_name):
     # 저장된 정보가 있다면 API 호출 없이 바로 반환
