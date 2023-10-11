@@ -14,7 +14,7 @@ async def update_summoner_id_dict(nickname_list):
         summoner_info = await get_summoner_info(nickname)
         if summoner_info:
             summoner_dict[nickname] = summoner_info
-
+            print(f"{nickname}                     , {summoner_dict[nickname]['id']}")
     # asyncio.gather를 사용해 여러 닉네임에 대해 동시에 update_one을 호출합니다.
     await asyncio.gather(*(update_one(nickname) for nickname in nickname_list))
 
