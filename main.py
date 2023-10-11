@@ -1321,6 +1321,7 @@ async def 유저(ctx, *, summoner_name: str):
 
     await ctx.send(f"{summoner_name}님은 현재 {team_id}팀에서 {champion_name}으로 게임 중입니다.")
 
+
 @bot.command()
 async def 채널(ctx, channel_id: int = None):
     # 채널 설정
@@ -1336,36 +1337,41 @@ async def 채널(ctx, channel_id: int = None):
         with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
             champ_id_to_name = json.load(f)
 
-        # 모든 채널 멤버에 대해 게임 정보를 얻고 딕셔너리에 저장
         game_info_dict = {}
+        known_game_ids = set()
+
         for member in members:
             summoner_name = member.nick.split('/')[0]
-
             game_info = await riot_api_utils.get_game_info(summoner_name)
-            print(game_info)
-            if game_info:
-                game_info_dict[summoner_name] = game_info
 
-        # 같은 게임에 참여하고 있는 사용자들을 찾기
-        same_game_members = {}
-        for summoner_name, info in game_info_dict.items():
-            same_game_members.setdefault(info['gameId'], []).append(summoner_name)
+            if not game_info:
+                continue  # 게임 정보가 없는 경우, 무시하고 계속 진행
 
-        # 2명 이상이 같은 게임에 참여하고 있는지 확인
-        for game_id, members_in_game in same_game_members.items():
-            if len(members_in_game) >= 1:
-                print(f"2명 이상의 사용자가 같은 게임 (ID: {game_id})에 참여하고 있습니다.")
+            game_id = game_info['gameId']
+            if game_id in known_game_ids:
+                continue  # 이미 처리된 게임 ID인 경우, 무시하고 계속 진행
 
-                # 한 멤버의 게임 정보로부터 해당 게임의 모든 참여자의 정보를 가져옴
-                game_info_example = game_info_dict[members_in_game[0]]
+            # 이 summoner_name에 대한 게임 정보를 딕셔너리에 저장
+            game_info_dict[summoner_name] = game_info
 
-                for participant in game_info_example['participants']:
-                    summoner_name = participant['summonerName']
-                    champion_id = participant['championId']
-                    team_id = participant['teamId']
-                    champion_name = champ_id_to_name.get(str(champion_id), "알 수 없는 챔피언")
+            # 이 게임에 동일하게 참여 중인 다른 사용자를 찾습니다.
+            same_game_members = [
+                s_name for s_name, s_game_info in game_info_dict.items()
+                if s_game_info['gameId'] == game_id
+            ]
 
-                    print(f"소환사 이름: {summoner_name}, 팀: {team_id}, 챔피언: {champion_name}")
+            if len(same_game_members) >= 1:  # 조건을 만족하는지 확인
+                print(f"{len(same_game_members)}명의 사용자가 게임 (ID: {game_id})에 참여하고 있습니다.")
+                known_game_ids.add(game_id)  # 이 게임 ID는 처리 완료로 마킹합니다.
+
+                # 게임 참여자 정보 출력 등 원하는 로직을 여기에 추가합니다.
+                for participant in game_info['participants']:
+                    p_name = participant['summonerName']
+                    p_champion_id = participant['championId']
+                    p_team_id = participant['teamId']
+                    p_champion_name = champ_id_to_name.get(str(p_champion_id), "알 수 없는 챔피언")
+
+                    print(f"소환사 이름: {p_name}, 팀: {p_team_id}, 챔피언: {p_champion_name}")
 
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
