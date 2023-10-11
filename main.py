@@ -22,7 +22,6 @@ current_time = datetime.now(KST)
 
 # 현재 시간을 'YYMM' 형식의 문자열로 변환합니다.
 current_yymm = current_time.strftime('%y%m')
-print(current_yymm)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -309,6 +308,10 @@ async def on_ready():
         macpanList[i] = 0
         i += 1
 
+    #닉네임 - summonerID 저장
+    for guild in bot.guilds:
+        nickname_list = [member.nick.split('/')[0] for member in guild.members if member.nick]
+        await riot_api_utils.update_summoner_id_dict(nickname_list)
 
     #await ch.send("내전 봇 재시작(약 24시간마다 자동재시작)")
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("내전 명단관리 열심히"))
@@ -1320,6 +1323,7 @@ async def 유저(ctx, *, summoner_name: str):
 
 @bot.command()
 async def 채널(ctx, channel_id: int = None):
+    # 채널 설정
     if channel_id:
         channel = bot.get_channel(channel_id)
     else:
@@ -1332,41 +1336,37 @@ async def 채널(ctx, channel_id: int = None):
         with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
             champ_id_to_name = json.load(f)
 
-        game_info_dict = {}
-
         # 모든 채널 멤버에 대해 게임 정보를 얻고 딕셔너리에 저장
+        game_info_dict = {}
         for member in members:
             summoner_name = member.nick.split('/')[0]
 
             game_info = await riot_api_utils.get_game_info(summoner_name)
             print(game_info)
             if game_info:
-                # 게임 정보 중에서 팀 정보, 챔피언 정보 등을 추출하여 메시지로 보내기
-                for participant in game_info['participants']:
-                    if participant['summonerId'] == summoner_name:
-                        champion_id = participant['championId']
-                        team_id = participant['teamId']
-                        champion_name = champ_id_to_name.get(str(champion_id), "알 수 없는 챔피언")
-                        game_info_dict[summoner_name] = {
-                            "gameId": game_info["gameId"],
-                            "team": team_id,
-                            "champion": champion_name  # 챔피언 이름
-                        }
-                        break
+                game_info_dict[summoner_name] = game_info
 
         # 같은 게임에 참여하고 있는 사용자들을 찾기
         same_game_members = {}
         for summoner_name, info in game_info_dict.items():
-            same_game_members.setdefault(info["gameId"], []).append(summoner_name)
+            same_game_members.setdefault(info['gameId'], []).append(summoner_name)
 
-        # 3명 이상이 같은 게임에 참여하고 있는지 확인
+        # 2명 이상이 같은 게임에 참여하고 있는지 확인
         for game_id, members_in_game in same_game_members.items():
-            if len(members_in_game) >= 2:
-                await ctx.send(f"2명 이상의 사용자가 같은 게임 (ID: {game_id})에 참여하고 있습니다.")
-                # game_info_dict의 내용 출력
-                for member in members_in_game:
-                    info = game_info_dict[member]
-                    await ctx.send(f"소환사 이름: {member}, 팀: {info['team']}, 챔피언: {info['champion']}")
+            if len(members_in_game) >= 1:
+                print(f"2명 이상의 사용자가 같은 게임 (ID: {game_id})에 참여하고 있습니다.")
+
+                # 한 멤버의 게임 정보로부터 해당 게임의 모든 참여자의 정보를 가져옴
+                game_info_example = game_info_dict[members_in_game[0]]
+
+                for participant in game_info_example['participants']:
+                    summoner_name = participant['summonerName']
+                    champion_id = participant['championId']
+                    team_id = participant['teamId']
+                    champion_name = champ_id_to_name.get(str(champion_id), "알 수 없는 챔피언")
+
+                    print(f"소환사 이름: {summoner_name}, 팀: {team_id}, 챔피언: {champion_name}")
+
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
