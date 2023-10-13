@@ -1435,7 +1435,7 @@ def run_web_server():
         print(f"Error starting web server: {e}")
 
 if __name__ == '__main__':
-    t = threading.Thread(target=run_web_server)
-    t.start()
+    #t = threading.Thread(target=run_web_server)
+    #t.start()
     bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
 
