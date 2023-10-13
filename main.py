@@ -1396,6 +1396,7 @@ def hello():
 
 @app.route('/api/greet', methods=['GET'])
 def greet_api():
+    print("greet_api")
     users = [
         {
             "id": 1,
@@ -1420,6 +1421,8 @@ def greet_api():
 
 @app.route('/api/game_list', methods=['GET'])
 def game_list_api():
+    global gameIDList
+    print("game_list_api")
     return jsonify(gameIDList)
 
 def run_web_server():
