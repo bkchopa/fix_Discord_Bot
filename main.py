@@ -14,9 +14,8 @@ import re
 import pytz
 import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 from threading import Thread
-import web_server
 import threading
-from web_server import app
+from flask import Flask
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
 
@@ -1381,6 +1380,11 @@ async def 채널(ctx, channel_id: int = None):
 
 
 
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Hello, World!"
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
     try:
