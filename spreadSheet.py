@@ -56,6 +56,9 @@ LAST_READ_ROW = 0  # 마지막으로 읽은 행을 전역 변수로 저장
 IS_FIRST_LOAD = True  # 첫 로드를 판별하는 플래그
 
 async def reload():
+    return
+
+
     global update_date, LAST_READ_ROW, IS_FIRST_LOAD
     player_ranking.clear()
     top_champions.clear()
