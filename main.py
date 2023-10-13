@@ -1387,7 +1387,6 @@ def run_web_server():
         print(f"Error starting web server: {e}")
 
 if __name__ == '__main__':
-    # 웹서버 시작
-    Thread(target=run_web_server).start()
+    run_web_server()  # 별도의 스레드 사용 없이 웹서버 시작
     bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
 
