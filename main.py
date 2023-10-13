@@ -1324,6 +1324,10 @@ async def 유저(ctx, *, summoner_name: str):
 
     await ctx.send(f"{summoner_name}님은 현재 {team_id}팀에서 {champion_name}으로 게임 중입니다.")
 
+gameIDList = list()
+@bot.command()
+async def 채테(ctx, channel_id: int = None):
+    gameIDList.append(channel_id)
 
 @bot.command()
 async def 채널(ctx, channel_id: int = None):
@@ -1367,14 +1371,17 @@ async def 채널(ctx, channel_id: int = None):
                 print(f"{len(same_game_members)}명의 사용자가 게임 (ID: {game_id})에 참여하고 있습니다.")
                 known_game_ids.add(game_id)  # 이 게임 ID는 처리 완료로 마킹합니다.
 
-                # 게임 참여자 정보 출력 등 원하는 로직을 여기에 추가합니다.
-                for participant in game_info['participants']:
-                    p_name = participant['summonerName']
-                    p_champion_id = participant['championId']
-                    p_team_id = participant['teamId']
-                    p_champion_name = champ_id_to_name.get(str(p_champion_id), "알 수 없는 챔피언")
+                if game_id not in gameIDList:
+                    gameIDList.append(game_id)
 
-                    print(f"소환사 이름: {p_name}, 팀: {p_team_id}, 챔피언: {p_champion_name}")
+                # 게임 참여자 정보 출력 등 원하는 로직을 여기에 추가합니다.
+                #for participant in game_info['participants']:
+                    #p_name = participant['summonerName']
+                    #p_champion_id = participant['championId']
+                    #p_team_id = participant['teamId']
+                    #p_champion_name = champ_id_to_name.get(str(p_champion_id), "알 수 없는 챔피언")
+
+                    #print(f"소환사 이름: {p_name}, 팀: {p_team_id}, 챔피언: {p_champion_name}")
 
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
@@ -1410,6 +1417,10 @@ def greet_api():
         }
     ]
     return jsonify({"message": "Hello from the API!", "users": users})
+
+@app.route('/api/game_list', methods=['GET'])
+def game_list_api():
+    return jsonify(gameIDList)
 
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
