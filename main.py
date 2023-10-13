@@ -14,8 +14,8 @@ import re
 import pytz
 import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 from threading import Thread
-import web_server  # 웹서버 파일 임포트
-
+import threading
+from flask import Flask
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
 
@@ -1378,15 +1378,23 @@ async def 채널(ctx, channel_id: int = None):
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
+
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Hello, World!"
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
     try:
-        web_server.app.run(host='0.0.0.0', port=port)
+        app.run(host='0.0.0.0', port=port)
         print("Web server started successfully!")
     except Exception as e:
         print(f"Error starting web server: {e}")
 
 if __name__ == '__main__':
-    run_web_server()  # 별도의 스레드 사용 없이 웹서버 시작
+    t = threading.Thread(target=run_web_server)
+    t.start()
     bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
 
