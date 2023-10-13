@@ -71,7 +71,6 @@ async def sendToChannel(message: str, id: int = 890160605246414848):
     await channel.send(message)
 @tasks.loop(hours=1)
 async def resetList():
-    return
     current_yymm = current_time.strftime('%y%m')
     await spreadSheet.reload() #1시간마다 한번씩 시트 읽어오기
     #채널 이름 바꾸기
@@ -1424,6 +1423,7 @@ def greet_api():
 def game_list_api():
     global gameIDList
     print("game_list_api")
+    print(gameIDList)
     return jsonify(gameIDList)
 
 def run_web_server():
