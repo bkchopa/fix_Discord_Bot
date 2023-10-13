@@ -13,6 +13,8 @@ from spreadSheet import player_ranking
 import re
 import pytz
 import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
+from threading import Thread
+import web_server  # 웹서버 파일 임포트
 
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
@@ -1376,5 +1378,8 @@ async def 채널(ctx, channel_id: int = None):
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
+if __name__ == '__main__':
+    # 웹서버 시작
+    Thread(target=web_server.app.run, kwargs={'port': 5000}).start()
+    bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
 
-bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
