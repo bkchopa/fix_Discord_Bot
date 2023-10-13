@@ -15,7 +15,7 @@ import pytz
 import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 from threading import Thread
 import threading
-from flask import Flask
+from flask import Flask,jsonify
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
 
@@ -1385,6 +1385,31 @@ app = Flask(__name__)
 @app.route('/')
 def hello():
     return "Hello, World!"
+
+@app.route('/api/greet', methods=['GET'])
+def greet_api():
+    users = [
+        {
+            "id": 1,
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "age": 30
+        },
+        {
+            "id": 2,
+            "name": "Jane Smith",
+            "email": "jane.smith@example.com",
+            "age": 28
+        },
+        {
+            "id": 3,
+            "name": "Bob Brown",
+            "email": "bob.brown@example.com",
+            "age": 22
+        }
+    ]
+    return jsonify({"message": "Hello from the API!", "users": users})
+
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
     try:
