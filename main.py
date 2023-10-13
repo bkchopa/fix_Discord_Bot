@@ -1327,6 +1327,7 @@ async def 유저(ctx, *, summoner_name: str):
 gameIDList = list()
 @bot.command()
 async def 채테(ctx, channel_id: int = None):
+    global gameIDList
     gameIDList.append(channel_id)
 
 @bot.command()
