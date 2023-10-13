@@ -1379,7 +1379,8 @@ async def 채널(ctx, channel_id: int = None):
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # Heroku의 환경변수에서 PORT 값을 가져오거나, 없으면 5000 사용
     # 웹서버 시작
-    Thread(target=web_server.app.run, kwargs={'port': 5000}).start()
+    Thread(target=web_server.app.run, kwargs={'host': '0.0.0.0', 'port': port}).start()
     bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
 
