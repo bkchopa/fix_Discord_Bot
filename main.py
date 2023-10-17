@@ -15,7 +15,7 @@ import pytz
 import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 from threading import Thread
 import threading
-from flask import Flask,jsonify
+from flask import Flask,request,jsonify
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
 
@@ -1426,6 +1426,22 @@ def game_list_api():
     print(gameIDList)
     return jsonify(gameIDList)
 
+@app.route('/api/game_result', methods=['POST'])
+def game_result():
+    """게임 결과 데이터를 받아 처리하는 엔드포인트."""
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    # 여기서 데이터를 처리하거나 데이터베이스에 저장할 수 있습니다.
+    # 예: save_to_database(data)
+
+
+
+
+    return jsonify({"message": "Game data received successfully!"}), 200
+
+
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
     try:
@@ -1437,5 +1453,5 @@ def run_web_server():
 if __name__ == '__main__':
     #t = threading.Thread(target=run_web_server)
     #t.start()
-    bot.run("OTI3NTA1NDYwMzU2MDgzNzUy.YdLMxQ.vxxK7lKSvqQbx_yv_gIj0RGwau0")
+    bot.run(os.environ['Token'])
 

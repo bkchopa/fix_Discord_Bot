@@ -2,7 +2,6 @@ import gspread
 import os
 import json
 import re
-from google.oauth2.service_account import Credentials
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 
@@ -254,3 +253,38 @@ async def reload():
 
     IS_FIRST_LOAD = False  # 첫 로드가 끝나면 플래그를 False로 설정
 
+def find_empty_row(worksheet, column='A'):
+    """해당 열에서 첫번째 빈 행의 번호를 반환"""
+    all_values = worksheet.col_values(worksheet.find(column).col)
+    return len(all_values) + 1
+
+def input_data_to_spreadsheet(data):
+
+    # 가장 최근 스프레드시트에 접근
+    spreadsheet_id = list(SPREADSHEET_IDS.values())[-1]
+    sheet = client.open_by_key(spreadsheet_id).worksheet('기입')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
+
+
+    win_team = [player for player in data if player['win'] == 'Win']
+    lose_team = [player for player in data if player['win'] == 'Lose']
+
+
+    starting_row = find_empty_row(sheet, 'C')
+
+
+    for win_player, lose_player in zip(win_team, lose_team):
+        # 승리팀 데이터 입력 (C열부터)
+        columns_for_win = [3, 4, 5, 6, 7, 8]
+        values_for_win = [win_player['nickname'], win_player['champion'], "승", 1, win_player['kills'], win_player['deaths'], win_player['assists']]
+
+        for col, value in zip(columns_for_win, values_for_win):
+            sheet.update_cell(starting_row, col, value)
+
+        # 패배팀 데이터 입력 (K열부터)
+        columns_for_lose = [11, 12, 13, 14, 15, 16]
+        values_for_lose = [lose_player['nickname'], lose_player['champion'], "패", 1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
+
+        for col, value in zip(columns_for_lose, values_for_lose):
+            sheet.update_cell(starting_row, col, value)
+
+        starting_row += 1
