@@ -1,3 +1,5 @@
+import sys
+
 import discord
 import os
 import json
@@ -17,6 +19,7 @@ from threading import Thread
 import threading
 from flask import Flask,request,jsonify
 from auction_commands import AuctionCommands
+import signal
 
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
@@ -1034,13 +1037,16 @@ def run_web_server():
     except Exception as e:
         print(f"Error starting web server: {e}")
 
+def shutdown_handler(signum, frame):
+    print("서버 죽음")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(bot.logout())
+    # 웹 서버 종료 로직 추가 (예: Flask의 경우 `stop()` 함수 등)
+    sys.exit(0)
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, shutdown_handler)
     t = threading.Thread(target=run_web_server)
     t.start()
-    try:
-        bot.run(os.environ['Token'])
-    except KeyboardInterrupt:
-        print(f"서버 죽음")
-        bot.logout()
-        t.join()
+    bot.run(os.environ['Token'])
 
