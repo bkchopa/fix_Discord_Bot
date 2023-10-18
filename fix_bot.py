@@ -109,11 +109,11 @@ async def on_ready():
         if bot_msg.content.startswith("대기인원:"):
             text = bot_msg.content.replace("대기인원:", "").strip()
             # 정규 표현식 패턴으로 번호와 뒤이어 오는 문자열(닉네임)을 찾습니다.
-            pattern = re.compile(r'(?<=\d+\.\s)(.*?)(?=\s*\d+\.|$)')
+            pattern = re.compile(r'(\d+\.\s)(.*?)(?=\s*\d+\.|$)')
             matches = pattern.findall(text)
 
-            for match in matches:
-                waitList.append(match.strip())  # 공백을 제거하고 waitList에 추가
+            for _, nickname in matches:
+                waitList.append(nickname.strip())  # 공백을 제거하고 waitList에 추가
 
             #await printlist(ch)
             break
