@@ -253,9 +253,9 @@ async def reload():
 
     IS_FIRST_LOAD = False  # 첫 로드가 끝나면 플래그를 False로 설정
 
-def find_empty_row(worksheet, column='A'):
+def find_empty_row(worksheet, index = 1):
     """해당 열에서 첫번째 빈 행의 번호를 반환"""
-    all_values = worksheet.col_values(worksheet.find(column).col)
+    all_values = worksheet.col_values(index)
     return len(all_values) + 1
 
 def input_data_to_spreadsheet(data):
@@ -263,7 +263,6 @@ def input_data_to_spreadsheet(data):
     # 가장 최근 스프레드시트에 접근
     #spreadsheet_id = list(SPREADSHEET_IDS.values())[-1]
     #sheet = client.open_by_key(spreadsheet_id).worksheet('기입')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
-
     spreadsheet_id = '10qFR8Nk29c0-pendLFn0fbU8mmm27ugYYa_VsES0Kao'
     sheet = client.open_by_key(spreadsheet_id).worksheet('시트1')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
 
@@ -271,7 +270,7 @@ def input_data_to_spreadsheet(data):
     lose_team = [player for player in data if player['win'] == 'Lose']
 
 
-    starting_row = find_empty_row(sheet, 'C')
+    starting_row = find_empty_row(sheet, 3)
 
 
     for win_player, lose_player in zip(win_team, lose_team):
