@@ -1445,7 +1445,7 @@ def game_result():
 def run_web_server():
     port = int(os.environ.get('PORT', 5000))
     try:
-        app.run(host='0.0.0.0', port=port)
+        app.run(host='0.0.0.0', port=port, use_reloader=False)
         print("Web server started successfully!")
     except Exception as e:
         print(f"Error starting web server: {e}")
@@ -1453,5 +1453,9 @@ def run_web_server():
 if __name__ == '__main__':
     t = threading.Thread(target=run_web_server)
     t.start()
-    bot.run(os.environ['Token'])
+    try:
+        bot.run(os.environ['Token'])
+    except KeyboardInterrupt:
+        bot.logout()
+        t.join()
 
