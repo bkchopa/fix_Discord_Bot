@@ -30,9 +30,11 @@ except json.JSONDecodeError:
 if SPREADSHEET_IDS:
     last_key = list(SPREADSHEET_IDS.keys())[-1]  # 딕셔너리의 마지막 키 가져오기
     last_spreadsheet_id = SPREADSHEET_IDS[last_key]
+    rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
 else:
     last_spreadsheet_id = None  # SPREADSHEET_IDS가 빈 딕셔너리인 경우에 대비
-rankingSheet = client.open_by_key(last_spreadsheet_id).worksheet("내전 순위")
+
+
 # 데이터 읽기와 쓰기 예제
 #print(worksheet.get_all_records())  # 모든 데이터 가져오기
 #worksheet.update_cell(1, 1, "Hello World!")  # 1행 1열에 "Hello World!" 입력
