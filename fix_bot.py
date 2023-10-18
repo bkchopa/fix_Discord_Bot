@@ -614,10 +614,6 @@ async def check_voice_channels():
             if channel and isinstance(channel, discord.VoiceChannel):
                 members = channel.members
 
-                # 챔피언 ID를 챔피언 이름으로 맵핑하는 딕셔너리를 불러옴
-                with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
-                    champ_id_to_name = json.load(f)
-
                 game_info_dict = {}
                 game_id_counts = defaultdict(int)
 
@@ -637,7 +633,7 @@ async def check_voice_channels():
 
                     # 같은 게임에 참여하고 있는 멤버가 3명 이상이면 처리를 중단합니다.
                     if game_id_counts[game_id] >= 3:
-                        game_id_status[game_id] = True
+                        game_id_status[game_id] = False
                         break
 
 

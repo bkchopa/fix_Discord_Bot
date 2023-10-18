@@ -267,36 +267,32 @@ def find_empty_row(worksheet, index = 1):
     all_values = worksheet.col_values(index)
     return len(all_values) + 1
 
-def input_data_to_spreadsheet(data):
 
-    # 가장 최근 스프레드시트에 접근
-    #spreadsheet_id = list(SPREADSHEET_IDS.values())[-1]
-    #sheet = client.open_by_key(spreadsheet_id).worksheet('기입')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
+def input_data_to_spreadsheet(data):
     spreadsheet_id = '10qFR8Nk29c0-pendLFn0fbU8mmm27ugYYa_VsES0Kao'
-    sheet = client.open_by_key(spreadsheet_id).worksheet('시트1')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
+    sheet = client.open_by_key(spreadsheet_id).worksheet('시트1')
 
     win_team = [player for player in data if player['win'] == 'Win']
     lose_team = [player for player in data if player['win'] == 'Lose']
 
-
     starting_row = find_empty_row(sheet, 3)
 
     with open("champion_id_name_map_korean.json", "r", encoding="utf-8") as f:
-            champion_map = json.load(f)
+        champion_map = json.load(f)
 
+    all_rows = []
     for win_player, lose_player in zip(win_team, lose_team):
-        # 승리팀 데이터 입력 (C열부터)
-        columns_for_win = [3, 4, 5, 6, 7, 8, 9]
-        values_for_win = [win_player['nickname'], champion_map.get(win_player['champion'], "Unknown Champion"), "승", 1, win_player['kills'], win_player['deaths'], win_player['assists']]
+        # 승리팀 데이터 생성
+        values_for_win = [win_player['position'], win_player['nickname'], champion_map.get(win_player['champion'], "Unknown Champion"), "승", 1,
+                          win_player['kills'], win_player['deaths'], win_player['assists']]
 
-        for col, value in zip(columns_for_win, values_for_win):
-            sheet.update_cell(starting_row, col, value)
+        # 패배팀 데이터 생성
+        values_for_lose = [lose_player['position'], lose_player['nickname'], champion_map.get(lose_player['champion'], "Unknown Champion"), "패",
+                           1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
 
-        # 패배팀 데이터 입력 (K열부터)
-        columns_for_lose = [11, 12, 13, 14, 15, 16, 17]
-        values_for_lose = [lose_player['nickname'], champion_map.get(lose_player['champion'], "Unknown Champion"), "패", 1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
+        combined_row = [""] + values_for_win + values_for_lose
+        all_rows.append(combined_row)
 
-        for col, value in zip(columns_for_lose, values_for_lose):
-            sheet.update_cell(starting_row, col, value)
-
-        starting_row += 1
+    # 한 번의 API 호출로 여러 줄을 업데이트
+    range_name = f"C{starting_row}:Q{starting_row + len(all_rows) - 1}"
+    sheet.update(range_name, all_rows)
