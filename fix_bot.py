@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 
 import discord
 import os
@@ -119,7 +120,10 @@ async def on_ready():
 
     if not resetList.is_running():
         print('시트 불러오기 시작')
-        resetList.start()
+        if os.environ.get('STATISTICS', 'false').lower() == 'true':
+            resetList.start()
+
+    check_voice_channels.start()
 
 
 
@@ -558,10 +562,6 @@ async def 채널(ctx, channel_id: int = None):
     if channel and isinstance(channel, discord.VoiceChannel):
         members = channel.members
 
-        # 챔피언 ID를 챔피언 이름으로 맵핑하는 딕셔너리를 불러옴
-        with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
-            champ_id_to_name = json.load(f)
-
         game_info_dict = {}
         known_game_ids = set()
 
@@ -603,6 +603,42 @@ async def 채널(ctx, channel_id: int = None):
 
     else:
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
+
+
+game_id_status = {}
+@tasks.loop(seconds=1800)
+async def check_voice_channels():
+    for team_name, team_data in team_lists.items():
+        for channel_id in team_data["ids"]:
+            channel = bot.get_channel(channel_id)
+            if channel and isinstance(channel, discord.VoiceChannel):
+                members = channel.members
+
+                # 챔피언 ID를 챔피언 이름으로 맵핑하는 딕셔너리를 불러옴
+                with open("champion_id_name_map_korean.json", "r", encoding='utf-8') as f:
+                    champ_id_to_name = json.load(f)
+
+                game_info_dict = {}
+                game_id_counts = defaultdict(int)
+
+                for member in members:
+                    summoner_name = member.nick.split('/')[0]
+                    game_info = await riot_api_utils.get_game_info(summoner_name)
+
+                    if not game_info:
+                        continue
+
+                    game_id = game_info['gameId']
+                    if game_id_status.get(game_id, False):
+                        continue  # 이미 처리된 게임 ID인 경우 처리하지 않습니다.
+
+                    game_info_dict[summoner_name] = game_info
+                    game_id_counts[game_id] += 1
+
+                    # 같은 게임에 참여하고 있는 멤버가 3명 이상이면 처리를 중단합니다.
+                    if game_id_counts[game_id] >= 3:
+                        game_id_status[game_id] = True
+                        break
 
 
 

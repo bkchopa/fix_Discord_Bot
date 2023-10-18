@@ -21,7 +21,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, sco
 client = gspread.authorize(creds)
 
 SPREADSHEET_IDS_JSON = os.environ.get('SPREADSHEET_IDS_JSON', '{}')
-SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)
+try:
+    SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)
+except json.JSONDecodeError:
+    SPREADSHEET_IDS = {}  # JSON 파싱에 실패하면 빈 딕셔너리를 사용합니다.
+
 # 워크시트 선택
 last_key = list(SPREADSHEET_IDS.keys())[-1]  # 딕셔너리의 마지막 키 가져오기
 last_spreadsheet_id = SPREADSHEET_IDS[last_key]
