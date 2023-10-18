@@ -8,7 +8,6 @@ import datetime
 from datetime import datetime
 import random
 import asyncio
-from collections import defaultdict
 import spreadSheet
 from common import team1_list, team2_list, team3_list, team_lists
 import common
@@ -34,11 +33,7 @@ bot.load_extension("player_statistics")
 macpanList = dict()
 maxTeam = 3
 waitList = list()
-
 test = "927502689913430057"
-
-
-
 
 
 async def sendToChannel(message: str, id: int = 890160605246414848):
@@ -85,23 +80,6 @@ async def not_here(ctx: discord.ext.commands.context.Context):
     await asyncio.sleep(4)
     await ctx.channel.purge(limit=2)
 
-async def changetitle(ctx: discord.ext.commands.context.Context):
-    return
-    ch2 = bot.get_channel(927502689452040236)
-    title = '대기순번체크 ' + str(len(waitList)) + '명'
-    if len(waitList) == 0:
-        await ctx.send('현재 대기 없음')
-        return
-    ret = ""
-    idx = 1
-    for name in waitList:
-        ret += str(idx)
-        idx += 1
-        ret += '. '
-        ret += name
-        ret += " "
-    await ch2.edit(topic=title)
-
 @bot.event
 async def on_ready():
     global waitList
@@ -142,8 +120,6 @@ async def on_ready():
     if not resetList.is_running():
         print('시트 불러오기 시작')
         resetList.start()
-
-
 
 
 
@@ -209,22 +185,6 @@ async def 체크(ctx, *, text=None):
 
 
 @bot.command()
-async def 테스트(ctx):
-    waitList.append('쵸파1')
-    waitList.append('쵸파2')
-    waitList.append('쵸파3')
-    waitList.append('쵸파4')
-    waitList.append('쵸파5')
-    waitList.append('쵸파6')
-    waitList.append('쵸파7')
-    waitList.append('쵸파8')
-    waitList.append('쵸파9')
-    waitList.append('쵸파10')
-    waitList.append('쵸파11')
-    waitList.append('쵸파12')
-
-
-@bot.command()
 async def 양보(ctx, * ,text):
     if ctx.channel.id != 890160605246414848:
         await not_here(ctx)
@@ -235,8 +195,6 @@ async def 양보(ctx, * ,text):
         waitList.remove(text)
 
     waitList.insert(0, text)
-
-    await changetitle(ctx)
 
 @bot.command(aliases=["취", "ㅊㅅ", "ct", "CT", "부취", "범취"])
 async def 취소(ctx, *, text=None):
@@ -316,7 +274,6 @@ async def 새치기(ctx, text1, text2):
         waitList.remove(text2)
 
     waitList.insert(index, text2)
-    await changetitle(ctx)
 
 
 @bot.command(aliases=["팀취", "ㅌㅊ"])
@@ -349,7 +306,6 @@ async def 팀취소(ctx, teamNum):
             waitList.remove(realNick)
 
     await printlist(ctx)
-    await changetitle(ctx)
 
 
 @bot.command(aliases=["ㅌㅃ"])
@@ -690,6 +646,7 @@ def game_list_api():
 
 @app.route('/api/game_result', methods=['POST'])
 def game_result():
+    print('/api/game_result')
     """게임 결과 데이터를 받아 처리하는 엔드포인트."""
     data = request.json
     if not data:
@@ -698,8 +655,8 @@ def game_result():
     # 여기서 데이터를 처리하거나 데이터베이스에 저장할 수 있습니다.
     # 예: save_to_database(data)
 
-
-
+    print(data)
+    spreadSheet.input_data_to_spreadsheet(data)
 
     return jsonify({"message": "Game data received successfully!"}), 200
 

@@ -261,9 +261,11 @@ def find_empty_row(worksheet, column='A'):
 def input_data_to_spreadsheet(data):
 
     # 가장 최근 스프레드시트에 접근
-    spreadsheet_id = list(SPREADSHEET_IDS.values())[-1]
-    sheet = client.open_by_key(spreadsheet_id).worksheet('기입')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
+    #spreadsheet_id = list(SPREADSHEET_IDS.values())[-1]
+    #sheet = client.open_by_key(spreadsheet_id).worksheet('기입')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
 
+    spreadsheet_id = '10qFR8Nk29c0-pendLFn0fbU8mmm27ugYYa_VsES0Kao'
+    sheet = client.open_by_key(spreadsheet_id).worksheet('시트1')  # 'Sheet1' 대신 실제 워크시트 이름을 사용하세요.
 
     win_team = [player for player in data if player['win'] == 'Win']
     lose_team = [player for player in data if player['win'] == 'Lose']
