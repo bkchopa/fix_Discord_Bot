@@ -691,7 +691,7 @@ def game_result():
     # 예: save_to_database(data)
 
     print(data)
-    if data['game_id'] in game_id_status:
+    if int(data['game_id']) in game_id_status:
         spreadSheet.input_data_to_spreadsheet(data['game_data'])
 
     return jsonify({"message": "Game data received successfully!"}), 200
