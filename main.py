@@ -1456,6 +1456,7 @@ if __name__ == '__main__':
     try:
         bot.run(os.environ['Token'])
     except KeyboardInterrupt:
+        print(f"서버 죽음")
         bot.logout()
         t.join()
 
