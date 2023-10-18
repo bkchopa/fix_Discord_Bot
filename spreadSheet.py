@@ -294,5 +294,5 @@ def input_data_to_spreadsheet(data):
         all_rows.append(combined_row)
 
     # 한 번의 API 호출로 여러 줄을 업데이트
-    range_name = f"C{starting_row}:Q{starting_row + len(all_rows) - 1}"
+    range_name = f"B{starting_row}:Q{starting_row + len(all_rows) - 1}"
     sheet.update(range_name, all_rows)
