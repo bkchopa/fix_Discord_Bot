@@ -275,7 +275,7 @@ def input_data_to_spreadsheet(data):
     win_team = [player for player in data if player['win'] == 'Win']
     lose_team = [player for player in data if player['win'] == 'Lose']
 
-    starting_row = find_empty_row(sheet, 3)
+    starting_row = find_empty_row(sheet, 2)
 
     with open("champion_id_name_map_korean.json", "r", encoding="utf-8") as f:
         champion_map = json.load(f)
@@ -290,9 +290,9 @@ def input_data_to_spreadsheet(data):
         values_for_lose = [lose_player['position'], lose_player['nickname'], champion_map.get(lose_player['champion'], "Unknown Champion"), "패",
                            1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
 
-        combined_row = [""] + values_for_win + values_for_lose
+        combined_row = values_for_win + values_for_lose
         all_rows.append(combined_row)
 
     # 한 번의 API 호출로 여러 줄을 업데이트
-    range_name = f"B{starting_row}:R{starting_row + len(all_rows) - 1}"
+    range_name = f"B{starting_row}:Q{starting_row + len(all_rows) - 1}"
     sheet.update(range_name, all_rows)

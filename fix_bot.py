@@ -546,10 +546,7 @@ async def 유저(ctx, *, summoner_name: str):
     await ctx.send(f"{summoner_name}님은 현재 {team_id}팀에서 {champion_name}으로 게임 중입니다.")
 
 gameIDList = list()
-@bot.command()
-async def 채테(ctx, channel_id: int = None):
-    global gameIDList
-    gameIDList.append(channel_id)
+
 
 @bot.command()
 async def 채널(ctx, channel_id: int = None):
@@ -605,7 +602,13 @@ async def 채널(ctx, channel_id: int = None):
         await ctx.send("음성 채널에 연결되어 있지 않거나 올바르지 않은 채널 ID를 제공하셨습니다.")
 
 
+@bot.command()
+async def 채테(ctx, gameid: int):
+    global game_id_status
+    game_id_status[gameid] = False
+
 game_id_status = {}
+game_id_status[6749447527] = False
 @tasks.loop(seconds=1800)
 async def check_voice_channels():
     for team_name, team_data in team_lists.items():
@@ -688,7 +691,8 @@ def game_result():
     # 예: save_to_database(data)
 
     print(data)
-    spreadSheet.input_data_to_spreadsheet(data)
+    if data['game_id'] in game_id_status:
+        spreadSheet.input_data_to_spreadsheet(data['game_data'])
 
     return jsonify({"message": "Game data received successfully!"}), 200
 
