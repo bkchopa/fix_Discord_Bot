@@ -272,18 +272,20 @@ def input_data_to_spreadsheet(data):
 
     starting_row = find_empty_row(sheet, 3)
 
+    with open("champion_id_name_map_korean.json", "r", encoding="utf-8") as f:
+            champion_map = json.load(f)
 
     for win_player, lose_player in zip(win_team, lose_team):
         # 승리팀 데이터 입력 (C열부터)
-        columns_for_win = [3, 4, 5, 6, 7, 8]
-        values_for_win = [win_player['nickname'], win_player['champion'], "승", 1, win_player['kills'], win_player['deaths'], win_player['assists']]
+        columns_for_win = [3, 4, 5, 6, 7, 8, 9]
+        values_for_win = [win_player['nickname'], champion_map.get(win_player['champion'], "Unknown Champion"), "승", 1, win_player['kills'], win_player['deaths'], win_player['assists']]
 
         for col, value in zip(columns_for_win, values_for_win):
             sheet.update_cell(starting_row, col, value)
 
         # 패배팀 데이터 입력 (K열부터)
-        columns_for_lose = [11, 12, 13, 14, 15, 16]
-        values_for_lose = [lose_player['nickname'], lose_player['champion'], "패", 1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
+        columns_for_lose = [11, 12, 13, 14, 15, 16, 17]
+        values_for_lose = [lose_player['nickname'], champion_map.get(lose_player['champion'], "Unknown Champion"), "패", 1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
 
         for col, value in zip(columns_for_lose, values_for_lose):
             sheet.update_cell(starting_row, col, value)

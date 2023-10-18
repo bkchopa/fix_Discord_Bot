@@ -10,6 +10,7 @@ RIOT_API_URL_SUMMONER = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/
 RIOT_API_URL_CURRENT_GAME = "https://kr.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/{summoner_id}"
 
 async def update_summoner_id_dict(nickname_list):
+    return
     async def update_one(nickname):
         summoner_info = await get_summoner_info(nickname)
         if summoner_info:
