@@ -16,6 +16,8 @@ import riot_api_utils  # 앞서 생성한 riot_api_utils.py를 사용
 from threading import Thread
 import threading
 from flask import Flask,request,jsonify
+from auction_commands import AuctionCommands
+
 # 한국 시간대를 설정
 KST = pytz.timezone('Asia/Seoul')
 
@@ -30,6 +32,7 @@ intents.members = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+bot.add_cog(AuctionCommands(bot))
 
 macpanList = dict()
 maxTeam = 3
@@ -40,13 +43,7 @@ team2 = "921703036294926366"
 team3 = "921703123221884969"
 team4 ="1040618972497854565"
 test = "927502689913430057"
-auction = 988117624468680794
-currentCount = -1
-topbidder = ""
-topprice = 0
-lastMember =""
-lastBidder =""
-lastPrice = 0
+
 
 team1_list = [890160695499423774, 944246730722013194, 1133763001766391808]
 team2_list = [921703036294926366, 890161063130177536, 890161039793086465]
@@ -58,11 +55,7 @@ team_lists = {
     "3팀": {"ids": team3_list, "alert_sent": "Idle"},
 }
 
-remainMileageDic = dict()
-memberListDic = defaultdict(list)
-memberList = list()
-missedMemberList = list()
-currentAuctionMember = str()
+
 
 
 
@@ -153,51 +146,8 @@ def player_statistics(player_data, show_total=False, show_position=False):
 
     return output
 
-def player_statistics_recent10(player_data):
-    recent_games = player_data[-10:]
-    returnTXT = ""
-    winCnt = 0
-    lossCnt = 0
-    winStreak = 0
-    lossStreak = 0
-    for game in recent_games:
-        champion = game['champion'].ljust(8)
-        result = game['result'].center(2)
-        if game['result'] == "승":
-            winCnt += 1
-            winStreak += 1
-            lossStreak = 0
-        else:
-            lossCnt += 1
-            lossStreak += 1
-            winStreak = 0
-        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
-        returnTXT += f"{champion} {result} {kda} \n"
-    streak = ""
-    if winStreak > lossStreak:
-        streak = "(" + str(winStreak) + "연승중!)"
-    else:
-        streak = "(" + str(lossStreak) + "연패중 ㅜ)"
-
-    results_with_emojis = ""
-
-    for game in recent_games:
-        champion = game['champion'].ljust(8)
-        emoji = "🔵" if game['result'] == "승" else "🔴"
-        result = game['result'].center(2)
-        kda = f"{game['kill']}/{game['death']}/{game['assist']}".ljust(9)
-        results_with_emojis += f"{emoji} {champion} {kda} \n"
-
-    return {
-        "totalMatchCnt": len(recent_games),
-        "winCnt": winCnt,
-        "lossCnt": lossCnt,
-        "streak": streak,
-        "resultsWithEmojis": results_with_emojis.strip()
-    }
-
-def player_statistics_recent5(player_data):
-    recent_games = player_data[-5:]
+def player_statistics_recent(player_data, recent_count):
+    recent_games = player_data[-recent_count:]
     returnTXT = ""
     winCnt = 0
     lossCnt = 0
@@ -338,7 +288,6 @@ async def on_ready():
         print('시트 불러오기 시작')
         resetList.start()
 
-    #counter.start()
 
 
 
@@ -637,371 +586,6 @@ async def 복구(ctx, *, text=None):
         i += 1
 
 
-
-
-
-
-
-
-
-@bot.command()
-async def 경매시작(ctx):
-    global currentCount
-    currentCount = 10
-
-
-
-@bot.command()
-async def 입찰(ctx, text):
-    nickname = ctx.message.author.nick
-    arr = nickname.split('/')
-    leader = arr[0].replace(" " , "")
-    if not leader in memberListDic:
-        await ctx.send("당신은 팀장이 아닌걸요?")
-        return
-
-    global currentCount
-    global topprice
-    global topbidder
-    if currentCount <= 0:
-        return
-
-    try:
-        price = int(text)
-    except ValueError:
-        await ctx.send('잘못 된 입력')
-        return
-
-    if price <= topprice:
-        return
-
-    if remainMileageDic[leader] < price:
-        await ctx.send(leader + "씨 돈이 부족해요")
-        return
-
-
-    if topbidder == leader:
-        return
-
-    currentCount = 10
-    topprice = price
-    topbidder = leader
-    retStr = "현재 상위 입찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
-    await ctx.send(retStr)
-
-
-
-
-@tasks.loop(seconds=1)
-async def counter():
-    global currentCount
-    global currentAuctionMember
-    global lastMember
-    global lastBidder
-    global lastPrice
-
-    if currentAuctionMember == "":
-        return
-
-    if currentCount < 0:
-        return
-
-    ch = bot.get_channel(auction)
-    if currentCount == 0:
-        global topprice
-        global topbidder
-        if topprice == 0:
-            missedMemberList.append(currentAuctionMember)
-            await ch.send("유찰되었습니다 ㅜ")
-        else:
-            retStr = "경매종료:" + currentAuctionMember + " 낙찰자 : " + str(topbidder) +" 입찰가 : " + str(topprice)
-            memberListDic[topbidder].append(currentAuctionMember)
-            remainMileageDic[topbidder] -= topprice
-            await ch.send(retStr)
-
-
-        lastMember = currentAuctionMember
-        lastBidder = topbidder
-        lastPrice = topprice
-        currentAuctionMember = ""
-        currentCount = -1
-        topprice = 0
-        topbidder = 0
-
-        retStr = "현재 남은 매물 : "
-        for member in memberList:
-            retStr += member + " "
-
-        retStr += "\n"
-
-        retStr += "유찰 매물     : "
-        for member in missedMemberList:
-            retStr += member + " "
-
-        retStr += "\n\n\n\n"
-
-        for leader in remainMileageDic:
-            tempStr = leader
-            tempStr += "("
-            tempStr += str(remainMileageDic[leader])
-            tempStr += ") :"
-            for name in memberListDic[leader]:
-                tempStr += name
-                tempStr += " "
-            tempStr += "\n"
-            retStr += tempStr
-
-        await ch.send(retStr)
-        return
-
-    msg = await ch.send(currentCount)
-    currentCount-=1
-
-
-@bot.command()
-async def 매물등록(ctx, Participants):
-    arr = Participants.split(',')
-    if len(arr) == 0:
-        return
-
-    for Participant in arr:
-        memberList.append(Participant)
-
-@bot.command()
-async def 매물추가(ctx, Participant):
-    memberList.append(Participant)
-
-@bot.command()
-async def 매물제거(ctx, Participant):
-    if Participant not in memberList:
-        return
-
-    memberList.remove(Participant)
-
-@bot.command()
-async def 매물섞기(ctx, Participant):
-    random.shuffle(memberList)
-
-@bot.command()
-async def 다음매물(ctx):
-    if len(memberList) == 0:
-        return
-
-    targetMember = memberList[0]
-    #targetMember = random.choice(memberList)
-    await ctx.send('다음 매물은 ' + targetMember + '!')
-    global currentAuctionMember
-    currentAuctionMember = targetMember
-    memberList.remove(targetMember)
-
-@bot.command()
-async def 수동매물등록(ctx, member):
-    if member not in memberList:
-        return
-
-    await ctx.send('다음 매물은 ' + member + '!')
-    global currentAuctionMember
-    currentAuctionMember = member
-    memberList.remove(member)
-
-@bot.command()
-async def 자동배정(ctx, leader, member):
-    if not leader in memberListDic:
-        await ctx.send("팀장을 잘못 적으셨어요")
-        return
-
-    if not member in memberList:
-        await ctx.send("팀원을 잘못 적으셨어요")
-        return
-
-    memberListDic[leader].append(member)
-    memberList.remove(member)
-
-@bot.command()
-async def 팀장등록(ctx, leader, mileage):
-    try:
-        price = int(mileage)
-    except ValueError:
-        await ctx.send('잘못 된 입력')
-        return
-
-    remainMileageDic[leader] = int(mileage)
-    memberListDic[leader] = list()
-
-@bot.command()
-async def 팀장제거(ctx, leader, mileage):
-    if leader not in memberListDic:
-        await ctx.send("팀장을 잘못 적으셨어요")
-        return
-    del remainMileageDic[leader]
-    del memberListDic[leader]
-
-@bot.command()
-async def 팀장마일리지추가(ctx, leader, mileage):
-    if not leader in memberListDic:
-        await ctx.send("팀장을 잘못 적으셨어요")
-        return
-
-    try:
-        price = int(mileage)
-    except ValueError:
-        await ctx.send('잘못 된 입력')
-        return
-
-    remainMileageDic[leader] += price
-
-
-@bot.command()
-async def 경매현황(ctx):
-    retStr =  "현재 남은 매물 : "
-    for member in memberList:
-        retStr += member + ","
-
-    retStr += "\n\n"
-
-    retStr += "유찰 매물     : "
-    for member in missedMemberList:
-        retStr += member + ","
-
-    retStr += "\n\n\n\n"
-
-    for leader in remainMileageDic:
-        tempStr = leader
-        tempStr += "("
-        tempStr += str(remainMileageDic[leader])
-        tempStr += ") :"
-        for name in memberListDic[leader]:
-            tempStr += name
-            tempStr += " "
-        tempStr += "\n"
-        retStr += tempStr
-
-    await ctx.send(retStr)
-
-
-@bot.command()
-async def 팀원제거(ctx, leader, member):
-    if leader not in memberListDic:
-        await ctx.send("팀장을 잘못 적으셨어요")
-        return
-
-    if member not in memberListDic[leader]:
-        await ctx.send("그런 팀원 없어요")
-        return
-
-    memberListDic[leader].remove(member)
-    memberList.append(member)
-
-@bot.command()
-async def 팀원추가(ctx, leader, member):
-    if leader not in memberListDic:
-        await ctx.send("팀장을 잘못 적으셨어요")
-        return
-
-    if member not in memberList:
-        await ctx.send("그런 매물 없어요")
-        return
-
-    memberListDic[leader].append(member)
-    memberList.remove(member)
-
-@bot.command()
-async def 유찰복구(ctx):
-    global memberList
-    memberList = missedMemberList.copy()
-    missedMemberList.clear()
-
-@bot.command()
-async def 되돌리기(ctx):
-    global lastMember
-    global lastBidder
-    global lastPrice
-
-    if lastMember == "":
-        return
-
-    if lastBidder == "":
-        return
-
-
-    if lastMember not in memberListDic[lastBidder]:
-        await ctx.send("잘못 된 입력")
-        return
-
-    try:
-        int(lastPrice)
-    except ValueError:
-        await ctx.send('잘못 된 입력')
-        return
-
-
-    memberListDic[lastBidder].remove(lastMember)
-    memberList.append(lastMember)
-    remainMileageDic[lastBidder] += int(lastPrice)
-    lastMember = ""
-    lastBidder = ""
-    lastPrice = 0
-
-
-@bot.command()
-async def 대진표(ctx):
-    teamList = list()
-    for leader in memberListDic:
-        teamList.append(leader)
-
-    if len(teamList) == 0:
-        return
-
-    if len(teamList) % 2 != 0:
-        return
-
-    retStr =""
-    while len(teamList) != 0:
-
-        team1 = random.choice(teamList)
-        team2 = random.choice(teamList)
-        if team1 == team2:
-            continue
-
-        retStr = team1 + " 팀 vs" +team2 + " 팀\n"
-        teamList.remove(team1)
-        teamList.remove(team2)
-
-        await ctx.send(retStr)
-        retStr =""
-
-@bot.command()
-async def 경매종료(ctx):
-    global currentAuctionMember
-    global currentCount
-    currentAuctionMember = ""
-    currentCount = -1
-
-@bot.command()
-async def 경매리셋(ctx):
-    global currentAuctionMember
-    global topbidder
-    global topprice
-    global lastMember
-    global lastBidder
-    global lastPrice
-    global remainMileageDic
-    global memberListDic
-    global memberList
-    global missedMemberList
-
-    topbidder = ""
-    topprice = 0
-    lastMember = ""
-    lastBidder = ""
-    lastPrice = 0
-
-    remainMileageDic.clear()
-    memberListDic.clear()
-    memberList.clear()
-    missedMemberList.clear()
-    currentAuctionMember = ""
-
 @bot.command(aliases=["도움"])
 async def 도움말(ctx):
     retStr ="명령어 목록\n"
@@ -1145,7 +729,7 @@ async def 전적(ctx, *, text=None):
                 name = "포롤포롤"
 
             if name in player_info:
-                result = player_statistics_recent5(player_info[name])
+                result = player_statistics_recent(player_info[name], 5)
 
                 # 모스트3
                 most3_champs = spreadSheet.get_most_champions_for_nickname(name, 5)
@@ -1198,7 +782,7 @@ async def 전적(ctx, *, text=None):
             embed.add_field(name="Most Pick", value=champ_text, inline=True)
             print("전적 검색5")
             #10전
-            result = player_statistics_recent10(player_info[name])
+            result = player_statistics_recent(player_info[name], 10)
             embed.add_field(
                 name=f"\n 최근 {result['totalMatchCnt']}전 {result['winCnt']}승 {result['lossCnt']}패\n {result['streak']}",
                 value=result['resultsWithEmojis'], inline=True)
