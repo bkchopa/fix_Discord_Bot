@@ -309,6 +309,8 @@ def input_data_to_spreadsheet(data):
 mapping = {}
 def create_mapping_from_sheet():
     sheet = client.open_by_key(last_spreadsheet_id).worksheet("부캐")
+    print(last_spreadsheet_id)
+    print("부캐시트 읽기")
     """Create a dictionary mapping from sub-character nickname to main character nickname using data from a Google Sheet."""
     data = sheet.get_all_values()  # Get all data from the sheet
     for row in data[1:]:  # Exclude header row
@@ -316,7 +318,8 @@ def create_mapping_from_sheet():
         for sub_nick in row[1:]:
             if sub_nick:  # if not empty
                 mapping[sub_nick] = main_nick
-    return mapping
+
+    print(mapping)
 
 def convert_to_main_nick_using_sheet(nickname):
     """Convert a given nickname to its main nickname using a mapping dictionary."""
