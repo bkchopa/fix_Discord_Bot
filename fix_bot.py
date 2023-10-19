@@ -125,7 +125,7 @@ async def on_ready():
             resetList.start()
 
     check_voice_channels.start()
-
+    spreadSheet.create_mapping_from_sheet()
 
 
 

@@ -21,6 +21,9 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(GOOGLE_CREDENTIALS, sco
 client = gspread.authorize(creds)
 
 SPREADSHEET_IDS_JSON = os.environ.get('SPREADSHEET_IDS_JSON', '{}')
+SPREADSHEET_IDS = None
+last_key = None
+last_spreadsheet_id = None
 try:
     SPREADSHEET_IDS = json.loads(SPREADSHEET_IDS_JSON)
 except json.JSONDecodeError:
@@ -269,8 +272,14 @@ def find_empty_row(worksheet, index = 1):
 
 
 def input_data_to_spreadsheet(data):
+
     spreadsheet_id = '10qFR8Nk29c0-pendLFn0fbU8mmm27ugYYa_VsES0Kao'
     sheet = client.open_by_key(spreadsheet_id).worksheet('시트1')
+
+    #last_key = list(SPREADSHEET_IDS.keys())[-1]  # 딕셔너리의 마지막 키 가져오기
+    #last_spreadsheet_id = SPREADSHEET_IDS[last_key]
+    #sheet = client.open_by_key(last_spreadsheet_id).worksheet("기입")
+
 
     win_team = [player for player in data if player['win'] == 'Win']
     lose_team = [player for player in data if player['win'] == 'Lose']
@@ -283,11 +292,11 @@ def input_data_to_spreadsheet(data):
     all_rows = []
     for win_player, lose_player in zip(win_team, lose_team):
         # 승리팀 데이터 생성
-        values_for_win = [win_player['position'], win_player['nickname'], champion_map.get(win_player['champion'], "Unknown Champion"), "승", 1,
+        values_for_win = [win_player['position'], convert_to_main_nick_using_sheet(win_player['nickname']), champion_map.get(win_player['champion'], "Unknown Champion"), "승", 1,
                           win_player['kills'], win_player['deaths'], win_player['assists']]
 
         # 패배팀 데이터 생성
-        values_for_lose = [lose_player['position'], lose_player['nickname'], champion_map.get(lose_player['champion'], "Unknown Champion"), "패",
+        values_for_lose = [lose_player['position'], convert_to_main_nick_using_sheet(lose_player['nickname']), champion_map.get(lose_player['champion'], "Unknown Champion"), "패",
                            1, lose_player['kills'], lose_player['deaths'], lose_player['assists']]
 
         combined_row = values_for_win + values_for_lose
@@ -296,3 +305,19 @@ def input_data_to_spreadsheet(data):
     # 한 번의 API 호출로 여러 줄을 업데이트
     range_name = f"B{starting_row}:Q{starting_row + len(all_rows) - 1}"
     sheet.update(range_name, all_rows)
+
+mapping = {}
+def create_mapping_from_sheet():
+    sheet = client.open_by_key(last_spreadsheet_id).worksheet("부캐")
+    """Create a dictionary mapping from sub-character nickname to main character nickname using data from a Google Sheet."""
+    data = sheet.get_all_values()  # Get all data from the sheet
+    for row in data[1:]:  # Exclude header row
+        main_nick = row[0]
+        for sub_nick in row[1:]:
+            if sub_nick:  # if not empty
+                mapping[sub_nick] = main_nick
+    return mapping
+
+def convert_to_main_nick_using_sheet(nickname):
+    """Convert a given nickname to its main nickname using a mapping dictionary."""
+    return mapping.get(nickname, nickname)
