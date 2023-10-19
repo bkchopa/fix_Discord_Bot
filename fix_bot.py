@@ -1,5 +1,6 @@
 import sys
 from collections import defaultdict
+from threading import Lock
 
 import discord
 import os
@@ -602,12 +603,17 @@ async def 채널(ctx, channel_id: int = None):
 
 
 @bot.command()
-async def 채테(ctx, gameid: int):
+async def 체테(ctx, gameid: int):
     global game_id_status
     game_id_status[gameid] = False
 
+@bot.command()
+async def 게임리스트(ctx):
+    print(game_id_status)
+
 game_id_status = defaultdict(int)
 game_id_status[6749447527] = False
+game_id_status_lock = Lock()
 @tasks.loop(seconds=1800)
 async def check_voice_channels():
     for team_name, team_data in team_lists.items():
@@ -627,6 +633,10 @@ async def check_voice_channels():
                         continue
 
                     game_id = game_info['gameId']
+
+                    if game_id in game_id_status:
+                        continue
+
                     if game_id_status.get(game_id, False):
                         continue  # 이미 처리된 게임 ID인 경우 처리하지 않습니다.
 
@@ -635,6 +645,7 @@ async def check_voice_channels():
 
                     # 같은 게임에 참여하고 있는 멤버가 3명 이상이면 처리를 중단합니다.
                     if game_id_counts[game_id] >= 3:
+                        print(f"3명이상 게임 {game_id}")
                         game_id_status[game_id] = False
                         break
 
@@ -680,7 +691,7 @@ def game_list_api():
 
 @app.route('/api/game_result', methods=['POST'])
 def game_result():
-    print('/api/game_result')
+
     """게임 결과 데이터를 받아 처리하는 엔드포인트."""
     data = request.json
     if not data:
@@ -689,9 +700,18 @@ def game_result():
     # 여기서 데이터를 처리하거나 데이터베이스에 저장할 수 있습니다.
     # 예: save_to_database(data)
 
+    if int(data['game_id']) not in game_id_status:
+        return jsonify({"message": "Game data received successfully!"}), 200
+
+    print('/api/game_result')
+    with game_id_status_lock:
+        if game_id_status[int(data['game_id'])]:
+            return jsonify({"message": "Game data received successfully!"}), 200
+
+        game_id_status[int(data['game_id'])] = True
+
     print(data)
-    if int(data['game_id']) in game_id_status:
-        spreadSheet.input_data_to_spreadsheet(data['game_data'])
+    spreadSheet.input_data_to_spreadsheet(data['game_data'])
 
     return jsonify({"message": "Game data received successfully!"}), 200
 
