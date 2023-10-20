@@ -322,5 +322,6 @@ def create_mapping_from_sheet():
     print(mapping)
 
 def convert_to_main_nick_using_sheet(nickname):
-    """Convert a given nickname to its main nickname using a mapping dictionary."""
+    print(mapping)
+    print(nickname)
     return mapping.get(nickname, nickname)
