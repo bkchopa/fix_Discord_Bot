@@ -119,13 +119,15 @@ async def on_ready():
             #await printlist(ch)
             break
 
+    spreadSheet.create_mapping_from_sheet()
+
     if not resetList.is_running():
         print('시트 불러오기 시작')
         if os.environ.get('STATISTICS', 'false').lower() == 'true':
             resetList.start()
 
     check_voice_channels.start()
-    spreadSheet.create_mapping_from_sheet()
+
 
 
 

@@ -112,7 +112,7 @@ async def reload():
                     continue
 
                 position = row[1]
-                nickname = row[2].lower()
+                nickname = convert_to_main_nick_using_sheet(row[2]).lower()
                 champion = row[3]
                 result = row[4]
                 kill = row[6]
@@ -135,7 +135,7 @@ async def reload():
                 )
 
                 position = row[9]
-                nickname = row[10].lower()
+                nickname = convert_to_main_nick_using_sheet(row[10]).lower()
                 champion = row[11]
                 result = row[12]
                 kill = row[14]
@@ -322,6 +322,4 @@ def create_mapping_from_sheet():
     print(mapping)
 
 def convert_to_main_nick_using_sheet(nickname):
-    print(mapping)
-    print(nickname)
     return mapping.get(nickname, nickname)
