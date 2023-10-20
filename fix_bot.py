@@ -616,7 +616,7 @@ async def 게임리스트(ctx):
 game_id_status = defaultdict(int)
 game_id_status[6749447527] = False
 game_id_status_lock = Lock()
-@tasks.loop(seconds=1800)
+@tasks.loop(seconds=600)
 async def check_voice_channels():
     for team_name, team_data in team_lists.items():
         for channel_id in team_data["ids"]:
